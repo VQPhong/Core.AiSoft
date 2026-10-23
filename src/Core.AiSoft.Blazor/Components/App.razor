@@ -1,0 +1,69 @@
+﻿@using System.Globalization
+@using Microsoft.Extensions.Hosting
+@using Volo.Abp.AspNetCore.Components.Server.LeptonXLiteTheme.Bundling
+@using Volo.Abp.Localization
+@using Volo.Abp.AspNetCore.Components.Web.Theming.Bundling
+@using Microsoft.AspNetCore.Http
+@inject IHostEnvironment Env
+@{
+    var rtl = CultureHelper.IsRtl ? "rtl" : string.Empty;
+}
+
+<!DOCTYPE html>
+<html lang="@CultureInfo.CurrentCulture.Name" dir="@rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Core.AiSoft</title>
+    <base href="@($"{HttpContext?.Request.PathBase}/")" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+
+
+    <AbpStyles BundleName="@BlazorLeptonXLiteThemeBundles.Styles.Global" WebAssemblyStyleFiles="GlobalStyles" @rendermode="InteractiveAuto" />
+
+    <link href="Core.AiSoft.Blazor.styles.css" rel="stylesheet"/>
+    <link href="Core.AiSoft.Blazor.Client.styles.css" rel="stylesheet"/>
+    
+    <HeadOutlet @rendermode="InteractiveAuto" />
+
+    
+</head>
+<body class="abp-application-layout @rtl">
+
+    <Routes @rendermode="InteractiveAuto" />
+
+    <div id="blazor-error-ui">
+        @if (Env.IsDevelopment())
+        {
+            <text>An unhandled exception has occurred. See browser dev tools for details.</text>
+        }
+        else if (Env.IsStaging() || Env.IsProduction())
+        {
+            <text>An error has occurred. This application may no longer respond until reloaded.</text>
+        }
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">&times;</a>
+    </div>
+    
+    <AbpScripts BundleName="@BlazorLeptonXLiteThemeBundles.Scripts.Global" WebAssemblyScriptFiles="GlobalScripts" @rendermode="InteractiveAuto" />
+
+    <script src="_framework/blazor.web.js"></script>
+
+</body>
+</html>
+
+@code{
+    [CascadingParameter]
+    private HttpContext? HttpContext { get; set; }
+
+    private List<string> GlobalStyles =>
+    [
+        "global.css"
+    ];
+
+    private List<string> GlobalScripts =>
+    [
+        "global.js"
+    ];
+
+}

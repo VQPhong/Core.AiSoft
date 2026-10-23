@@ -1,0 +1,118 @@
+{
+  "template": "app",
+  "imports": {
+    "Volo.Abp.LeptonXLiteTheme": {
+      "version": "5.7.0",
+      "isInstalled": true,
+      "creationTime": "10/23/2026 15:30:37 +00:00"
+    },
+    "Volo.Abp.Account": {
+      "version": "10.7.0",
+      "isInstalled": true,
+      "creationTime": "10/23/2026 15:30:37 +00:00"
+    },
+    "Volo.Abp.OpenIddict": {
+      "version": "10.7.0",
+      "isInstalled": true,
+      "creationTime": "10/23/2026 15:30:37 +00:00"
+    },
+    "Volo.Abp.Identity": {
+      "version": "10.7.0",
+      "isInstalled": true,
+      "creationTime": "10/23/2026 15:30:37 +00:00"
+    },
+    "Volo.Abp.TenantManagement": {
+      "version": "10.7.0",
+      "isInstalled": true,
+      "creationTime": "10/23/2026 15:30:37 +00:00"
+    },
+    "Volo.Abp.SettingManagement": {
+      "version": "10.7.0",
+      "isInstalled": true,
+      "creationTime": "10/23/2026 15:30:37 +00:00"
+    },
+    "Volo.Abp.PermissionManagement": {
+      "version": "10.7.0",
+      "isInstalled": true,
+      "creationTime": "10/23/2026 15:30:37 +00:00"
+    },
+    "Volo.Abp.FeatureManagement": {
+      "version": "10.7.0",
+      "isInstalled": true,
+      "creationTime": "10/23/2026 15:30:37 +00:00"
+    },
+    "Volo.Abp.BlobStoring.Database": {
+      "version": "10.7.0",
+      "isInstalled": true,
+      "creationTime": "10/23/2026 15:30:37 +00:00"
+    }
+  },
+  "folders": {
+    "items": {
+      "src": {},
+      "test": {}
+    }
+  },
+  "packages": {
+    "Core.AiSoft.Application": {
+      "path": "src/Core.AiSoft.Application/Core.AiSoft.Application.abppkg",
+      "folder": "src"
+    },
+    "Core.AiSoft.Application.Tests": {
+      "path": "test/Core.AiSoft.Application.Tests/Core.AiSoft.Application.Tests.abppkg",
+      "folder": "test"
+    },
+    "Core.AiSoft.Domain.Shared": {
+      "path": "src/Core.AiSoft.Domain.Shared/Core.AiSoft.Domain.Shared.abppkg",
+      "folder": "src"
+    },
+    "Core.AiSoft.Application.Contracts": {
+      "path": "src/Core.AiSoft.Application.Contracts/Core.AiSoft.Application.Contracts.abppkg",
+      "folder": "src"
+    },
+    "Core.AiSoft.HttpApi": {
+      "path": "src/Core.AiSoft.HttpApi/Core.AiSoft.HttpApi.abppkg",
+      "folder": "src"
+    },
+    "Core.AiSoft.HttpApi.Client": {
+      "path": "src/Core.AiSoft.HttpApi.Client/Core.AiSoft.HttpApi.Client.abppkg",
+      "folder": "src"
+    },
+    "Core.AiSoft.EntityFrameworkCore.Tests": {
+      "path": "test/Core.AiSoft.EntityFrameworkCore.Tests/Core.AiSoft.EntityFrameworkCore.Tests.abppkg",
+      "folder": "test"
+    },
+    "Core.AiSoft.EntityFrameworkCore": {
+      "path": "src/Core.AiSoft.EntityFrameworkCore/Core.AiSoft.EntityFrameworkCore.abppkg",
+      "folder": "src"
+    },
+    "Core.AiSoft.TestBase": {
+      "path": "test/Core.AiSoft.TestBase/Core.AiSoft.TestBase.abppkg",
+      "folder": "test"
+    },
+    "Core.AiSoft.Domain.Tests": {
+      "path": "test/Core.AiSoft.Domain.Tests/Core.AiSoft.Domain.Tests.abppkg",
+      "folder": "test"
+    },
+    "Core.AiSoft.HttpApi.Client.ConsoleTestApp": {
+      "path": "test/Core.AiSoft.HttpApi.Client.ConsoleTestApp/Core.AiSoft.HttpApi.Client.ConsoleTestApp.abppkg",
+      "folder": "test"
+    },
+    "Core.AiSoft.DbMigrator": {
+      "path": "src/Core.AiSoft.DbMigrator/Core.AiSoft.DbMigrator.abppkg",
+      "folder": "src"
+    },
+    "Core.AiSoft.Blazor": {
+      "path": "src/Core.AiSoft.Blazor/Core.AiSoft.Blazor.abppkg",
+      "folder": "src"
+    },
+    "Core.AiSoft.Blazor.Client": {
+      "path": "src/Core.AiSoft.Blazor.Client/Core.AiSoft.Blazor.Client.abppkg",
+      "folder": "src"
+    },
+    "Core.AiSoft.Domain": {
+      "path": "src/Core.AiSoft.Domain/Core.AiSoft.Domain.abppkg",
+      "folder": "src"
+    }
+  }
+}

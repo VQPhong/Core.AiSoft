@@ -1,0 +1,26 @@
+<Solution>
+    <Configurations>
+        <Platform Name="Any CPU" />
+    </Configurations>
+    <Folder Name="/src/">
+        <Project Path="src/Core.AiSoft.Domain/Core.AiSoft.Domain.csproj" />
+        <Project Path="src/Core.AiSoft.Application/Core.AiSoft.Application.csproj" />
+        <Project Path="src/Core.AiSoft.EntityFrameworkCore/Core.AiSoft.EntityFrameworkCore.csproj" />
+        <Project Path="src/Core.AiSoft.Domain.Shared/Core.AiSoft.Domain.Shared.csproj" />
+        <Project Path="src/Core.AiSoft.Application.Contracts/Core.AiSoft.Application.Contracts.csproj" />
+        <Project Path="src/Core.AiSoft.HttpApi/Core.AiSoft.HttpApi.csproj" />
+        <Project Path="src/Core.AiSoft.HttpApi.Client/Core.AiSoft.HttpApi.Client.csproj" />
+        <Project Path="src/Core.AiSoft.DbMigrator/Core.AiSoft.DbMigrator.csproj" />
+        <Project Path="src/Core.AiSoft.Blazor/Core.AiSoft.Blazor.csproj" />
+        <Project Path="src/Core.AiSoft.Blazor.Client/Core.AiSoft.Blazor.Client.csproj" />
+        <Project Path="src/Core.AiSoft.ServiceDefaults/Core.AiSoft.ServiceDefaults.csproj" />
+        <Project Path="src/Core.AiSoft.AppHost/Core.AiSoft.AppHost.csproj" />
+    </Folder>
+    <Folder Name="/test/">
+        <Project Path="test/Core.AiSoft.Application.Tests/Core.AiSoft.Application.Tests.csproj" />
+        <Project Path="test/Core.AiSoft.EntityFrameworkCore.Tests/Core.AiSoft.EntityFrameworkCore.Tests.csproj" />
+        <Project Path="test/Core.AiSoft.TestBase/Core.AiSoft.TestBase.csproj" />
+        <Project Path="test/Core.AiSoft.Domain.Tests/Core.AiSoft.Domain.Tests.csproj" />
+        <Project Path="test/Core.AiSoft.HttpApi.Client.ConsoleTestApp/Core.AiSoft.HttpApi.Client.ConsoleTestApp.csproj" />
+    </Folder>
+</Solution>
