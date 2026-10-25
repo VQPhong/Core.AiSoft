@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Volo.Abp.Data;
@@ -23,17 +24,20 @@ public class AiSoftDbMigrationService : ITransientDependency
     private readonly IEnumerable<IAiSoftDbSchemaMigrator> _dbSchemaMigrators;
     private readonly ITenantRepository _tenantRepository;
     private readonly ICurrentTenant _currentTenant;
+    private readonly IConfiguration _configuration;
 
     public AiSoftDbMigrationService(
         IDataSeeder dataSeeder,
         ITenantRepository tenantRepository,
         ICurrentTenant currentTenant,
-        IEnumerable<IAiSoftDbSchemaMigrator> dbSchemaMigrators)
+        IEnumerable<IAiSoftDbSchemaMigrator> dbSchemaMigrators,
+        IConfiguration configuration)
     {
         _dataSeeder = dataSeeder;
         _tenantRepository = tenantRepository;
         _currentTenant = currentTenant;
         _dbSchemaMigrators = dbSchemaMigrators;
+        _configuration = configuration;
 
         Logger = NullLogger<AiSoftDbMigrationService>.Instance;
     }
@@ -103,12 +107,14 @@ public class AiSoftDbMigrationService : ITransientDependency
     private async Task SeedDataAsync(Tenant? tenant = null)
     {
         Logger.LogInformation($"Executing {(tenant == null ? "host" : tenant.Name + " tenant")} database seed...");
-        
+
+        var adminPassword = _configuration["SeedData:AdminPassword"];
+
         await _dataSeeder.SeedAsync(new DataSeedContext(tenant?.Id)
             .WithProperty(IdentityDataSeedContributor.AdminEmailPropertyName,
                 AiSoftConsts.AdminEmailDefaultValue)
             .WithProperty(IdentityDataSeedContributor.AdminPasswordPropertyName,
-                AiSoftConsts.AdminPasswordDefaultValue)
+                string.IsNullOrWhiteSpace(adminPassword) ? AiSoftConsts.AdminPasswordDefaultValue : adminPassword)
         );
     }
 

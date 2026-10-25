@@ -14,6 +14,7 @@
         <Project Path="src/Core.AiSoft.Blazor/Core.AiSoft.Blazor.csproj" />
         <Project Path="src/Core.AiSoft.Blazor.Client/Core.AiSoft.Blazor.Client.csproj" />
         <Project Path="src/Core.AiSoft.ServiceDefaults/Core.AiSoft.ServiceDefaults.csproj" />
+        <Project Path="src/Core.AiSoft.Infrastructure/Core.AiSoft.Infrastructure.csproj" />
         <Project Path="src/Core.AiSoft.AppHost/Core.AiSoft.AppHost.csproj" />
     </Folder>
     <Folder Name="/test/">

@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Extensions.DependencyInjection;
 using OpenIddict.Validation.AspNetCore;
 using OpenIddict.Server.AspNetCore;
 using Core.AiSoft.Blazor.Client.Navigation;
+using Core.AiSoft.Blazor.InfraCheck;
+using Core.AiSoft.BlobStoring.SeaweedFs;
 using Core.AiSoft.EntityFrameworkCore;
 using Core.AiSoft.Localization;
 using Core.AiSoft.MultiTenancy;
@@ -31,7 +33,12 @@ using Volo.Abp.AspNetCore.Mvc.UI.Bundling;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.Shared;
 using Volo.Abp.AspNetCore.Serilog;
 using Volo.Abp.Autofac;
+using Volo.Abp.BlobStoring;
+using Volo.Abp.EntityFrameworkCore.DistributedEvents;
+using Volo.Abp.EventBus.Distributed;
+using Volo.Abp.EventBus.RabbitMq;
 using Volo.Abp.Mapperly;
+using Volo.Abp.RabbitMQ;
 using Volo.Abp.Security.Claims;
 using Volo.Abp.AspNetCore.Components.WebAssembly.Theming.Bundling;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite;
@@ -56,7 +63,9 @@ namespace Core.AiSoft.Blazor;
 [DependsOn(
     typeof(AiSoftApplicationModule),
     typeof(AiSoftEntityFrameworkCoreModule),
+    typeof(AiSoftInfrastructureModule),
     typeof(AiSoftHttpApiModule),
+    typeof(AbpEventBusRabbitMqModule),
     typeof(AbpAutofacModule),
     typeof(AbpSwashbuckleModule),
     typeof(AbpIdentityBlazorServerModule),
@@ -145,10 +154,58 @@ public class AiSoftBlazorModule : AbpModule
         ConfigureBundles(hostingEnvironment);
         ConfigureVirtualFileSystem(hostingEnvironment);
         ConfigureSwaggerServices(context.Services);
-        ConfigureAutoApiControllers();
+        ConfigureAutoApiControllers(hostingEnvironment);
         ConfigureBlazorise(context);
         ConfigureRouter(context);
         ConfigureMenu(context);
+        ConfigureRabbitMq(configuration);
+        ConfigureDistributedEventBus();
+        ConfigureBlobStoring();
+    }
+
+    private void ConfigureRabbitMq(IConfiguration configuration)
+    {
+        // Aspire injects ConnectionStrings__rabbitmq (amqp://user:pass@host:port); ABP reads RabbitMQ:Connections.
+        var connectionString = configuration.GetConnectionString("rabbitmq");
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            return;
+        }
+
+        Configure<AbpRabbitMqOptions>(options =>
+        {
+            options.Connections.Default.Uri = new Uri(connectionString);
+        });
+    }
+
+    private void ConfigureDistributedEventBus()
+    {
+        // Configured here, not in the EF Core module, so only the process running the RabbitMQ bus
+        // starts the outbox sender / inbox processor (DbMigrator and tests do not).
+        Configure<AbpDistributedEventBusOptions>(options =>
+        {
+            options.Outboxes.Configure(config =>
+            {
+                config.UseDbContext<AiSoftDbContext>();
+            });
+
+            options.Inboxes.Configure(config =>
+            {
+                config.UseDbContext<AiSoftDbContext>();
+            });
+        });
+    }
+
+    private void ConfigureBlobStoring()
+    {
+        // Default container stays on the database provider; only named containers go to SeaweedFS.
+        Configure<AbpBlobStoringOptions>(options =>
+        {
+            options.Containers.Configure<InfraSmokeTestContainer>(container =>
+            {
+                container.UseSeaweedFs();
+            });
+        });
     }
 
     private void ConfigureAuthentication(ServiceConfigurationContext context)
@@ -276,11 +333,17 @@ public class AiSoftBlazorModule : AbpModule
         });
     }
 
-    private void ConfigureAutoApiControllers()
+    private void ConfigureAutoApiControllers(IWebHostEnvironment hostingEnvironment)
     {
         Configure<AbpAspNetCoreMvcOptions>(options =>
         {
             options.ConventionalControllers.Create(typeof(AiSoftApplicationModule).Assembly);
+
+            // Developer diagnostics only: the endpoints do not exist outside Development.
+            if (!hostingEnvironment.IsDevelopment())
+            {
+                options.ControllersToRemove.Add(typeof(InfraCheckController));
+            }
         });
     }
 

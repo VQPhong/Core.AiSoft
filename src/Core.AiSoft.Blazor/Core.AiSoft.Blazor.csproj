@@ -36,12 +36,14 @@
     <ProjectReference Include="..\Core.AiSoft.HttpApi\Core.AiSoft.HttpApi.csproj" />
     <ProjectReference Include="..\Core.AiSoft.EntityFrameworkCore\Core.AiSoft.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\Core.AiSoft.ServiceDefaults\Core.AiSoft.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\Core.AiSoft.Infrastructure\Core.AiSoft.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Volo.Abp.Autofac" Version="10.7.0" />
     <PackageReference Include="Volo.Abp.Swashbuckle" Version="10.7.0" />
     <PackageReference Include="Volo.Abp.AspNetCore.Serilog" Version="10.7.0" />
+    <PackageReference Include="Volo.Abp.EventBus.RabbitMQ" Version="10.7.0" />
   </ItemGroup>
 
   <ItemGroup>

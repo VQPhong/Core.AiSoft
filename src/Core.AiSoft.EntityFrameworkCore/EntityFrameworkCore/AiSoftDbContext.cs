@@ -5,6 +5,7 @@ using Volo.Abp.BlobStoring.Database.EntityFrameworkCore;
 using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.EntityFrameworkCore;
+using Volo.Abp.EntityFrameworkCore.DistributedEvents;
 using Volo.Abp.EntityFrameworkCore.Modeling;
 using Volo.Abp.FeatureManagement.EntityFrameworkCore;
 using Volo.Abp.Identity;
@@ -23,10 +24,15 @@ namespace Core.AiSoft.EntityFrameworkCore;
 public class AiSoftDbContext :
     AbpDbContext<AiSoftDbContext>,
     ITenantManagementDbContext,
-    IIdentityDbContext
+    IIdentityDbContext,
+    IHasEventOutbox,
+    IHasEventInbox
 {
     /* Add DbSet properties for your Aggregate Roots / Entities here. */
 
+    // Transactional outbox/inbox for the RabbitMQ distributed event bus
+    public DbSet<OutgoingEventRecord> OutgoingEvents { get; set; }
+    public DbSet<IncomingEventRecord> IncomingEvents { get; set; }
 
     #region Entities from the modules
 
@@ -78,6 +84,8 @@ public class AiSoftDbContext :
         builder.ConfigureOpenIddict();
         builder.ConfigureTenantManagement();
         builder.ConfigureBlobStoring();
+        builder.ConfigureEventOutbox();
+        builder.ConfigureEventInbox();
 
         /* Configure your own tables/entities inside here */
 
