@@ -18,7 +18,11 @@ using Core.AiSoft.Blazor.Client.Navigation;
 using Core.AiSoft.Blazor.InfraCheck;
 using Core.AiSoft.BlobStoring.SeaweedFs;
 using Core.AiSoft.EntityFrameworkCore;
+using Core.AiSoft.Knowledge;
+using Core.AiSoft.Knowledge.Documents;
 using Core.AiSoft.Localization;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Core.AiSoft.MultiTenancy;
 using Microsoft.OpenApi;
 using Microsoft.Extensions.Options;
@@ -161,6 +165,7 @@ public class AiSoftBlazorModule : AbpModule
         ConfigureRabbitMq(configuration);
         ConfigureDistributedEventBus();
         ConfigureBlobStoring();
+        ConfigureUploadLimits(context);
     }
 
     private void ConfigureRabbitMq(IConfiguration configuration)
@@ -205,7 +210,31 @@ public class AiSoftBlazorModule : AbpModule
             {
                 container.UseSeaweedFs();
             });
+
+            options.Containers.Configure<KnowledgeDocumentContainer>(container =>
+            {
+                container.UseSeaweedFs();
+            });
         });
+    }
+
+    private static void ConfigureUploadLimits(ServiceConfigurationContext context)
+    {
+        // Kestrel rejects bodies over 30 MB and forms cap multipart sections at 128 MB by default.
+        // Allow the knowledge upload limit plus room for the multipart headers; the exact limit is enforced by KnowledgeFileValidator.
+        const long multipartOverhead = 1024 * 1024;
+
+        context.Services.AddOptions<KestrelServerOptions>()
+            .Configure<IOptions<KnowledgeUploadOptions>>((kestrel, upload) =>
+            {
+                kestrel.Limits.MaxRequestBodySize = upload.Value.MaxFileSize + multipartOverhead;
+            });
+
+        context.Services.AddOptions<FormOptions>()
+            .Configure<IOptions<KnowledgeUploadOptions>>((form, upload) =>
+            {
+                form.MultipartBodyLengthLimit = upload.Value.MaxFileSize + multipartOverhead;
+            });
     }
 
     private void ConfigureAuthentication(ServiceConfigurationContext context)
@@ -338,6 +367,10 @@ public class AiSoftBlazorModule : AbpModule
         Configure<AbpAspNetCoreMvcOptions>(options =>
         {
             options.ConventionalControllers.Create(typeof(AiSoftApplicationModule).Assembly);
+            options.ConventionalControllers.Create(typeof(KnowledgeApplicationModule).Assembly, opts =>
+            {
+                opts.RootPath = KnowledgeRemoteServiceConsts.ModuleName;
+            });
 
             // Developer diagnostics only: the endpoints do not exist outside Development.
             if (!hostingEnvironment.IsDevelopment())

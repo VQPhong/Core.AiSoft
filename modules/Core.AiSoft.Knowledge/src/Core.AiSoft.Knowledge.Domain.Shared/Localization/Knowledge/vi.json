@@ -1,0 +1,13 @@
+{
+  "culture": "vi",
+  "texts": {
+    "Permission:Knowledge": "Kho tri thức",
+    "Permission:Documents": "Tài liệu",
+    "Permission:Documents.Upload": "Tải lên tài liệu",
+    "Knowledge:FileTypeNotAllowed": "Không được tải lên tệp định dạng '{extension}'. Các định dạng cho phép: {allowedExtensions}.",
+    "Knowledge:FileContentMismatch": "Nội dung của '{fileName}' không phải là tệp {extension} hợp lệ.",
+    "Knowledge:FileTooLarge": "Tệp vượt quá giới hạn {maxSizeMb} MB.",
+    "Knowledge:EmptyFile": "Tệp không có nội dung.",
+    "Knowledge:DuplicateDocument": "Tệp này đã được tải lên trước đó."
+  }
+}

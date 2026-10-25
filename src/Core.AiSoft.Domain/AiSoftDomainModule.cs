@@ -1,9 +1,8 @@
+using Core.AiSoft.Knowledge;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Core.AiSoft.Localization;
 using Core.AiSoft.MultiTenancy;
 using System;
-using Volo.Abp.Localization;
 using Volo.Abp.Modularity;
 using Volo.Abp.MultiTenancy;
 using Volo.Abp.PermissionManagement.Identity;
@@ -22,6 +21,7 @@ using Volo.Abp.TenantManagement;
 namespace Core.AiSoft;
 
 [DependsOn(
+    typeof(KnowledgeDomainModule),
     typeof(AiSoftDomainSharedModule),
     typeof(AbpAuditLoggingDomainModule),
     typeof(AbpCachingModule),

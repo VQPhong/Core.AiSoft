@@ -1,4 +1,5 @@
-﻿using Localization.Resources.AbpUi;
+﻿using Core.AiSoft.Knowledge;
+using Localization.Resources.AbpUi;
 using Core.AiSoft.Localization;
 using Volo.Abp.Account;
 using Volo.Abp.SettingManagement;
@@ -12,6 +13,7 @@ using Volo.Abp.TenantManagement;
 namespace Core.AiSoft;
 
  [DependsOn(
+    typeof(KnowledgeHttpApiModule),
     typeof(AiSoftApplicationContractsModule),
     typeof(AbpPermissionManagementHttpApiModule),
     typeof(AbpSettingManagementHttpApiModule),

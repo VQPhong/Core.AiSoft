@@ -1,6 +1,6 @@
+using Core.AiSoft.Knowledge.EntityFrameworkCore;
 using System;
 using Microsoft.Extensions.DependencyInjection;
-using Volo.Abp.Uow;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -18,6 +18,7 @@ using Volo.Abp.Studio;
 namespace Core.AiSoft.EntityFrameworkCore;
 
 [DependsOn(
+    typeof(KnowledgeEntityFrameworkCoreModule),
     typeof(AiSoftDomainModule),
     typeof(AbpPermissionManagementEntityFrameworkCoreModule),
     typeof(AbpSettingManagementEntityFrameworkCoreModule),

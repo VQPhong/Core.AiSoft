@@ -1,4 +1,5 @@
-﻿using Volo.Abp.PermissionManagement;
+﻿using Core.AiSoft.Knowledge;
+using Volo.Abp.PermissionManagement;
 using Volo.Abp.SettingManagement;
 using Volo.Abp.Account;
 using Volo.Abp.Identity;
@@ -11,6 +12,7 @@ using Volo.Abp.TenantManagement;
 namespace Core.AiSoft;
 
 [DependsOn(
+    typeof(KnowledgeApplicationModule),
     typeof(AiSoftDomainModule),
     typeof(AiSoftApplicationContractsModule),
     typeof(AbpPermissionManagementApplicationModule),

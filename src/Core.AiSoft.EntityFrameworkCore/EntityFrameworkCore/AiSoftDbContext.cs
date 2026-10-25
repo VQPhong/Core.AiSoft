@@ -1,3 +1,6 @@
+using Core.AiSoft.Knowledge.Documents;
+using Core.AiSoft.Knowledge.EntityFrameworkCore;
+using Core.AiSoft.Knowledge.IngestionJobs;
 using Microsoft.EntityFrameworkCore;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
@@ -20,11 +23,13 @@ namespace Core.AiSoft.EntityFrameworkCore;
 
 [ReplaceDbContext(typeof(IIdentityDbContext))]
 [ReplaceDbContext(typeof(ITenantManagementDbContext))]
+[ReplaceDbContext(typeof(IKnowledgeDbContext))]
 [ConnectionStringName("Default")]
 public class AiSoftDbContext :
     AbpDbContext<AiSoftDbContext>,
     ITenantManagementDbContext,
     IIdentityDbContext,
+    IKnowledgeDbContext,
     IHasEventOutbox,
     IHasEventInbox
 {
@@ -61,6 +66,10 @@ public class AiSoftDbContext :
     public DbSet<Tenant> Tenants { get; set; }
     public DbSet<TenantConnectionString> TenantConnectionStrings { get; set; }
 
+    // Knowledge
+    public DbSet<KnowledgeDocument> KnowledgeDocuments { get; set; }
+    public DbSet<IngestionJob> IngestionJobs { get; set; }
+
     #endregion
 
     public AiSoftDbContext(DbContextOptions<AiSoftDbContext> options)
@@ -86,6 +95,15 @@ public class AiSoftDbContext :
         builder.ConfigureBlobStoring();
         builder.ConfigureEventOutbox();
         builder.ConfigureEventInbox();
+        builder.ConfigureKnowledge();
+        
+        builder.Entity<KnowledgeDocument>(b =>
+        {
+            b.HasIndex(d => new { d.TenantId, d.Sha256 })
+                .IsUnique()
+                .HasFilter("\"IsDeleted\" = false")
+                .AreNullsDistinct(false);
+        });
 
         /* Configure your own tables/entities inside here */
 

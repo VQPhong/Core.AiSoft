@@ -34,4 +34,8 @@
     <Content Remove="Localization\AiSoft\*.json" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\modules\Core.AiSoft.Knowledge\src\Core.AiSoft.Knowledge.Domain.Shared\Core.AiSoft.Knowledge.Domain.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

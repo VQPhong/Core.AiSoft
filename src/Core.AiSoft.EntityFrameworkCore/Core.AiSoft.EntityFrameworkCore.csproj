@@ -39,4 +39,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\modules\Core.AiSoft.Knowledge\src\Core.AiSoft.Knowledge.EntityFrameworkCore\Core.AiSoft.Knowledge.EntityFrameworkCore.csproj" />
+  </ItemGroup>
+
 </Project>

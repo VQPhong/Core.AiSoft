@@ -1,0 +1,13 @@
+{
+  "culture": "en",
+  "texts": {
+    "Permission:Knowledge": "Knowledge",
+    "Permission:Documents": "Documents",
+    "Permission:Documents.Upload": "Upload documents",
+    "Knowledge:FileTypeNotAllowed": "Files of type '{extension}' cannot be uploaded. Allowed types: {allowedExtensions}.",
+    "Knowledge:FileContentMismatch": "The content of '{fileName}' does not match a valid {extension} file.",
+    "Knowledge:FileTooLarge": "The file is larger than the {maxSizeMb} MB limit.",
+    "Knowledge:EmptyFile": "The file is empty.",
+    "Knowledge:DuplicateDocument": "This file has already been uploaded."
+  }
+}
