@@ -12,6 +12,11 @@ public class KnowledgePermissions
         public const string Upload = Default + ".Upload";
     }
 
+    public static class IngestionJobs
+    {
+        public const string Default = GroupName + ".IngestionJobs";
+    }
+
     public static string[] GetAll()
     {
         return ReflectionHelper.GetPublicConstantsRecursively(typeof(KnowledgePermissions));

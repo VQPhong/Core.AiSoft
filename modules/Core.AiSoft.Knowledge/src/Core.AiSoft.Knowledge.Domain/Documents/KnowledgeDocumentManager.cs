@@ -6,6 +6,7 @@ using Volo.Abp;
 using Volo.Abp.BlobStoring;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Domain.Services;
+using Volo.Abp.EventBus.Distributed;
 
 namespace Core.AiSoft.Knowledge.Documents;
 
@@ -15,17 +16,20 @@ public class KnowledgeDocumentManager : DomainService
     private readonly IRepository<KnowledgeDocument, Guid> _documentRepository;
     private readonly IRepository<IngestionJob, Guid> _jobRepository;
     private readonly IBlobContainer<KnowledgeDocumentContainer> _blobContainer;
+    private readonly IDistributedEventBus _distributedEventBus;
 
     public KnowledgeDocumentManager(
         KnowledgeFileValidator fileValidator,
         IRepository<KnowledgeDocument, Guid> documentRepository,
         IRepository<IngestionJob, Guid> jobRepository,
-        IBlobContainer<KnowledgeDocumentContainer> blobContainer)
+        IBlobContainer<KnowledgeDocumentContainer> blobContainer,
+        IDistributedEventBus distributedEventBus)
     {
         _fileValidator = fileValidator;
         _documentRepository = documentRepository;
         _jobRepository = jobRepository;
         _blobContainer = blobContainer;
+        _distributedEventBus = distributedEventBus;
     }
 
     public virtual async Task<(KnowledgeDocument Document, IngestionJob Job)> CreateAsync(string fileName, byte[] content)
@@ -57,7 +61,15 @@ public class KnowledgeDocumentManager : DomainService
         await _documentRepository.InsertAsync(document);
         await _jobRepository.InsertAsync(job);
 
-        // Upload later so it would handle rollback in case of failure
+        await _distributedEventBus.PublishAsync(new IngestDocumentRequestedEto
+        {
+            JobId = job.Id,
+            DocumentId = document.Id,
+            TenantId = document.TenantId
+        });
+
+        // Upload later so it would handle rollback in case of failure.
+        // If fail, its published event job would be failed too, so no harm.
         await _blobContainer.SaveAsync(document.BlobName, content);
 
         return (document, job);

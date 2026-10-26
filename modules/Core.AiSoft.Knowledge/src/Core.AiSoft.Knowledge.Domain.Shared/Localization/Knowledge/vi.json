@@ -4,10 +4,22 @@
     "Permission:Knowledge": "Kho tri thức",
     "Permission:Documents": "Tài liệu",
     "Permission:Documents.Upload": "Tải lên tài liệu",
+    "Permission:IngestionJobs": "Tiến trình xử lý tài liệu",
+    "Enum:KnowledgeDocumentStatus.Pending": "Đang chờ",
+    "Enum:KnowledgeDocumentStatus.Indexed": "Đã lập chỉ mục",
+    "Enum:KnowledgeDocumentStatus.Failed": "Lỗi",
+    "Enum:IngestionJobStatus.Queued": "Đang xếp hàng",
+    "Enum:IngestionJobStatus.Extracting": "Đang tách nội dung",
+    "Enum:IngestionJobStatus.Chunking": "Đang chia đoạn",
+    "Enum:IngestionJobStatus.Embedding": "Đang tạo vector",
+    "Enum:IngestionJobStatus.Indexing": "Đang lập chỉ mục",
+    "Enum:IngestionJobStatus.Succeeded": "Hoàn thành",
+    "Enum:IngestionJobStatus.Failed": "Lỗi",
     "Knowledge:FileTypeNotAllowed": "Không được tải lên tệp định dạng '{extension}'. Các định dạng cho phép: {allowedExtensions}.",
     "Knowledge:FileContentMismatch": "Nội dung của '{fileName}' không phải là tệp {extension} hợp lệ.",
     "Knowledge:FileTooLarge": "Tệp vượt quá giới hạn {maxSizeMb} MB.",
     "Knowledge:EmptyFile": "Tệp không có nội dung.",
-    "Knowledge:DuplicateDocument": "Tệp này đã được tải lên trước đó."
+    "Knowledge:DuplicateDocument": "Tệp này đã được tải lên trước đó.",
+    "Knowledge:BlobNotFound": "Không tìm thấy tệp đã lưu '{blobName}'."
   }
 }

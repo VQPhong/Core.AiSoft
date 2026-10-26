@@ -4,10 +4,22 @@
     "Permission:Knowledge": "Knowledge",
     "Permission:Documents": "Documents",
     "Permission:Documents.Upload": "Upload documents",
+    "Permission:IngestionJobs": "Ingestion jobs",
+    "Enum:KnowledgeDocumentStatus.Pending": "Pending",
+    "Enum:KnowledgeDocumentStatus.Indexed": "Indexed",
+    "Enum:KnowledgeDocumentStatus.Failed": "Failed",
+    "Enum:IngestionJobStatus.Queued": "Queued",
+    "Enum:IngestionJobStatus.Extracting": "Extracting text",
+    "Enum:IngestionJobStatus.Chunking": "Chunking",
+    "Enum:IngestionJobStatus.Embedding": "Embedding",
+    "Enum:IngestionJobStatus.Indexing": "Indexing",
+    "Enum:IngestionJobStatus.Succeeded": "Succeeded",
+    "Enum:IngestionJobStatus.Failed": "Failed",
     "Knowledge:FileTypeNotAllowed": "Files of type '{extension}' cannot be uploaded. Allowed types: {allowedExtensions}.",
     "Knowledge:FileContentMismatch": "The content of '{fileName}' does not match a valid {extension} file.",
     "Knowledge:FileTooLarge": "The file is larger than the {maxSizeMb} MB limit.",
     "Knowledge:EmptyFile": "The file is empty.",
-    "Knowledge:DuplicateDocument": "This file has already been uploaded."
+    "Knowledge:DuplicateDocument": "This file has already been uploaded.",
+    "Knowledge:BlobNotFound": "The stored file '{blobName}' could not be found."
   }
 }

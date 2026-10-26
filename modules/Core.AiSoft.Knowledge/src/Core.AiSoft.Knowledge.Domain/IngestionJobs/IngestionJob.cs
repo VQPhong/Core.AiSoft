@@ -39,4 +39,49 @@ public class IngestionJob : AuditedAggregateRoot<Guid>, IMultiTenant
         DocumentId = documentId;
         Status = IngestionJobStatus.Queued;
     }
+
+    public virtual bool IsFinished => Status is IngestionJobStatus.Succeeded or IngestionJobStatus.Failed;
+
+    public virtual void StartAttempt(int attempt, DateTime now)
+    {
+        EnsureNotFinished();
+
+        AttemptCount = attempt;
+        StartedAt ??= now;
+        Status = IngestionJobStatus.Extracting;
+    }
+
+    public virtual void Succeed(int chunkCount, DateTime now)
+    {
+        EnsureNotFinished();
+
+        ChunkCount = chunkCount;
+        FinishedAt = now;
+        ErrorCode = null;
+        ErrorMessage = null;
+        Status = IngestionJobStatus.Succeeded;
+    }
+
+    public virtual void Fail(string? errorCode, string? errorMessage, DateTime now)
+    {
+        EnsureNotFinished();
+
+        ErrorCode = Truncate(errorCode, IngestionJobConsts.MaxErrorCodeLength);
+        ErrorMessage = Truncate(errorMessage, IngestionJobConsts.MaxErrorMessageLength);
+        FinishedAt = now;
+        Status = IngestionJobStatus.Failed;
+    }
+
+    private void EnsureNotFinished()
+    {
+        if (IsFinished)
+        {
+            throw new InvalidOperationException($"Ingestion job {Id} has already finished with status {Status}.");
+        }
+    }
+
+    private static string? Truncate(string? value, int maxLength)
+    {
+        return value == null || value.Length <= maxLength ? value : value[..maxLength];
+    }
 }

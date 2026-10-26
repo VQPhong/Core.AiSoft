@@ -30,6 +30,7 @@
         <Project Path="test/Core.AiSoft.EntityFrameworkCore.Tests/Core.AiSoft.EntityFrameworkCore.Tests.csproj" />
         <Project Path="test/Core.AiSoft.TestBase/Core.AiSoft.TestBase.csproj" />
         <Project Path="test/Core.AiSoft.Domain.Tests/Core.AiSoft.Domain.Tests.csproj" />
+        <Project Path="test/Core.AiSoft.Infrastructure.Tests/Core.AiSoft.Infrastructure.Tests.csproj" />
         <Project Path="test/Core.AiSoft.HttpApi.Client.ConsoleTestApp/Core.AiSoft.HttpApi.Client.ConsoleTestApp.csproj" />
     </Folder>
 </Solution>

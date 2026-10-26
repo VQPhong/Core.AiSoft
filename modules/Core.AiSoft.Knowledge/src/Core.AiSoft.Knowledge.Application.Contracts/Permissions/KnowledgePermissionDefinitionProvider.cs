@@ -12,6 +12,8 @@ public class KnowledgePermissionDefinitionProvider : PermissionDefinitionProvide
 
         var documents = knowledgeGroup.AddPermission(KnowledgePermissions.Documents.Default, L("Permission:Documents"));
         documents.AddChild(KnowledgePermissions.Documents.Upload, L("Permission:Documents.Upload"));
+
+        knowledgeGroup.AddPermission(KnowledgePermissions.IngestionJobs.Default, L("Permission:IngestionJobs"));
     }
 
     private static LocalizableString L(string name)

@@ -15,4 +15,9 @@
     <ProjectReference Include="..\Core.AiSoft.Knowledge.Domain.Shared\Core.AiSoft.Knowledge.Domain.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Entity constructors are internal (created only by domain services); tests build entities directly. -->
+    <InternalsVisibleTo Include="Core.AiSoft.Domain.Tests" />
+  </ItemGroup>
+
 </Project>

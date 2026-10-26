@@ -11,4 +11,6 @@ public static class KnowledgeErrorCodes
     public const string EmptyFile = "Knowledge:EmptyFile";
 
     public const string DuplicateDocument = "Knowledge:DuplicateDocument";
+
+    public const string BlobNotFound = "Knowledge:BlobNotFound";
 }
