@@ -20,6 +20,10 @@
     "Knowledge:FileTooLarge": "Tệp vượt quá giới hạn {maxSizeMb} MB.",
     "Knowledge:EmptyFile": "Tệp không có nội dung.",
     "Knowledge:DuplicateDocument": "Tệp này đã được tải lên trước đó.",
-    "Knowledge:BlobNotFound": "Không tìm thấy tệp đã lưu '{blobName}'."
+    "Knowledge:BlobNotFound": "Không tìm thấy tệp đã lưu '{blobName}'.",
+    "Knowledge:ExtractorNotFound": "Chưa có bộ tách nội dung cho tệp '{extension}'.",
+    "Knowledge:FileUnreadable": "Không đọc được tệp {extension}; tệp có thể bị hỏng hoặc đặt mật khẩu.",
+    "Knowledge:NoTextExtracted": "Không tách được nội dung văn bản nào từ tệp.",
+    "Knowledge:PdfHasNoTextLayer": "Tệp PDF không có lớp văn bản (có vẻ là tài liệu scan). Chưa hỗ trợ OCR."
   }
 }

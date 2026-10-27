@@ -13,4 +13,12 @@ public static class KnowledgeErrorCodes
     public const string DuplicateDocument = "Knowledge:DuplicateDocument";
 
     public const string BlobNotFound = "Knowledge:BlobNotFound";
+
+    public const string ExtractorNotFound = "Knowledge:ExtractorNotFound";
+
+    public const string FileUnreadable = "Knowledge:FileUnreadable";
+
+    public const string NoTextExtracted = "Knowledge:NoTextExtracted";
+
+    public const string PdfHasNoTextLayer = "Knowledge:PdfHasNoTextLayer";
 }

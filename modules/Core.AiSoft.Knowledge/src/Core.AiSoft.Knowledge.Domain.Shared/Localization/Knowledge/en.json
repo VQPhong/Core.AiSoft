@@ -20,6 +20,10 @@
     "Knowledge:FileTooLarge": "The file is larger than the {maxSizeMb} MB limit.",
     "Knowledge:EmptyFile": "The file is empty.",
     "Knowledge:DuplicateDocument": "This file has already been uploaded.",
-    "Knowledge:BlobNotFound": "The stored file '{blobName}' could not be found."
+    "Knowledge:BlobNotFound": "The stored file '{blobName}' could not be found.",
+    "Knowledge:ExtractorNotFound": "There is no text extractor for '{extension}' files.",
+    "Knowledge:FileUnreadable": "The {extension} file could not be read; it may be corrupt or password-protected.",
+    "Knowledge:NoTextExtracted": "No text could be extracted from the file.",
+    "Knowledge:PdfHasNoTextLayer": "The PDF has no text layer (it looks like a scanned document). OCR is not supported yet."
   }
 }
