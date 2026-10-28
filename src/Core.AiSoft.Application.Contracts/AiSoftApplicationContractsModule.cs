@@ -1,4 +1,4 @@
-﻿using Core.AiSoft.Knowledge;
+using Core.AiSoft.Knowledge;
 using Volo.Abp.Account;
 using Volo.Abp.Modularity;
 using Volo.Abp.PermissionManagement;
@@ -6,6 +6,8 @@ using Volo.Abp.SettingManagement;
 using Volo.Abp.FeatureManagement;
 using Volo.Abp.Identity;
 using Volo.Abp.TenantManagement;
+using Volo.CmsKit.Admin;
+using Volo.CmsKit.Public;
 
 namespace Core.AiSoft;
 
@@ -19,6 +21,7 @@ namespace Core.AiSoft;
     typeof(AbpTenantManagementApplicationContractsModule),
     typeof(AbpPermissionManagementApplicationContractsModule)
 )]
+[DependsOn(typeof(CmsKitAdminApplicationContractsModule), typeof(CmsKitPublicApplicationContractsModule))]
 public class AiSoftApplicationContractsModule : AbpModule
 {
     public override void PreConfigureServices(ServiceConfigurationContext context)

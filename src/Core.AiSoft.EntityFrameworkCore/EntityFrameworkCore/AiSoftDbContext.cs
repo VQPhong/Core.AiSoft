@@ -18,6 +18,7 @@ using Volo.Abp.SettingManagement.EntityFrameworkCore;
 using Volo.Abp.OpenIddict.EntityFrameworkCore;
 using Volo.Abp.TenantManagement;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
+using Volo.CmsKit.EntityFrameworkCore;
 
 namespace Core.AiSoft.EntityFrameworkCore;
 
@@ -96,7 +97,8 @@ public class AiSoftDbContext :
         builder.ConfigureEventOutbox();
         builder.ConfigureEventInbox();
         builder.ConfigureKnowledge();
-        
+        builder.ConfigureCmsKit();
+
         builder.Entity<KnowledgeDocument>(b =>
         {
             b.HasIndex(d => new { d.TenantId, d.Sha256 })

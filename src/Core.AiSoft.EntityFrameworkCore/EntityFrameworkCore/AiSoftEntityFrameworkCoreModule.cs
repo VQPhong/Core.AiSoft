@@ -14,6 +14,7 @@ using Volo.Abp.SettingManagement.EntityFrameworkCore;
 using Volo.Abp.BlobStoring.Database.EntityFrameworkCore;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
 using Volo.Abp.Studio;
+using Volo.CmsKit.EntityFrameworkCore;
 
 namespace Core.AiSoft.EntityFrameworkCore;
 
@@ -31,6 +32,7 @@ namespace Core.AiSoft.EntityFrameworkCore;
     typeof(AbpTenantManagementEntityFrameworkCoreModule),
     typeof(BlobStoringDatabaseEntityFrameworkCoreModule)
     )]
+[DependsOn(typeof(CmsKitEntityFrameworkCoreModule))]
 public class AiSoftEntityFrameworkCoreModule : AbpModule
 {
     public override void PreConfigureServices(ServiceConfigurationContext context)

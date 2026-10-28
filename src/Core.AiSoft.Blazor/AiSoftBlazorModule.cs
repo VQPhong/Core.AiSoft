@@ -61,6 +61,12 @@ using Volo.Abp.OpenIddict;
 using Volo.Abp.Account.Web;
 using Volo.Abp.Identity.Blazor.Server;
 using Volo.Abp.TenantManagement.Blazor.Server;
+using Volo.CmsKit.Admin.Web;
+using Volo.CmsKit.Public.Web;
+using Volo.CmsKit.GlobalFeatures;
+using Volo.CmsKit.Web;
+using Volo.Abp.GlobalFeatures;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Core.AiSoft.Blazor;
 
@@ -80,6 +86,7 @@ namespace Core.AiSoft.Blazor;
     typeof(AbpAspNetCoreMvcUiLeptonXLiteThemeModule),
     typeof(AbpAspNetCoreSerilogModule)
    )]
+[DependsOn(typeof(CmsKitAdminWebModule), typeof(CmsKitPublicWebModule))]
 public class AiSoftBlazorModule : AbpModule
 {
     public override void PreConfigureServices(ServiceConfigurationContext context)
@@ -166,6 +173,22 @@ public class AiSoftBlazorModule : AbpModule
         ConfigureDistributedEventBus();
         ConfigureBlobStoring();
         ConfigureUploadLimits(context);
+        ConfigureCmsKitBlogRoutes();
+    }
+
+    private void ConfigureCmsKitBlogRoutes()
+    {
+        if (!GlobalFeatureManager.Instance.IsEnabled<BlogsFeature>() || GlobalFeatureManager.Instance.IsEnabled<PagesFeature>())
+        {
+            return;
+        }
+
+        Configure<RazorPagesOptions>(options =>
+        {
+            var prefix = CmsBlogsWebConsts.BlogsRoutePrefix.EnsureStartsWith('/');
+            options.Conventions.AddPageRoute("/Public/CmsKit/Blogs/Index", prefix + "/{blogSlug:minlength(1)}");
+            options.Conventions.AddPageRoute("/Public/CmsKit/Blogs/BlogPost", prefix + "/{blogSlug}/{blogPostSlug:minlength(1)}");
+        });
     }
 
     private void ConfigureRabbitMq(IConfiguration configuration)

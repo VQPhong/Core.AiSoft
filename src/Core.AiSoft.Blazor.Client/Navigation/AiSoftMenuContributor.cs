@@ -46,6 +46,19 @@ public class AiSoftMenuContributor : IMenuContributor
             order: 1
         ));
 
+        //context.Menu.AddItem(new ApplicationMenuItem(
+        //        AiSoftMenus.Knowledge,
+        //        l["Menu:Knowledge"],
+        //        icon: "fas fa-book",
+        //        order: 2)
+        //    .AddItem(new ApplicationMenuItem(
+        //        AiSoftMenus.KnowledgeEditor,
+        //        l["Menu:KnowledgeEditor"],
+        //        "/Cms/BlogPosts",
+        //        icon: "fas fa-pen-to-square",
+        //        target: "_self",
+        //        requiredPermissionName: "CmsKit.BlogPosts")));
+
         if (MultiTenancyConsts.IsEnabled)
         {
             administration.SetSubItemOrder(TenantManagementMenuNames.GroupName, 1);

@@ -17,6 +17,7 @@
     <PackageReference Include="Volo.Abp.SettingManagement.Domain.Shared" Version="10.7.0" />
     <PackageReference Include="Volo.Abp.BlobStoring.Database.Domain.Shared" Version="10.7.0" />
     <PackageReference Include="Volo.Abp.GlobalFeatures" Version="10.7.0" />
+    <PackageReference Include="Volo.CmsKit.Domain.Shared" Version="10.7.0" />
   </ItemGroup>
 
   <ItemGroup>

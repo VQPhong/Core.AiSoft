@@ -17,6 +17,7 @@ using Volo.Abp.Emailing;
 using Volo.Abp.FeatureManagement;
 using Volo.Abp.Identity;
 using Volo.Abp.TenantManagement;
+using Volo.CmsKit;
 
 namespace Core.AiSoft;
 
@@ -35,6 +36,7 @@ namespace Core.AiSoft;
     typeof(AbpOpenIddictDomainModule),
     typeof(AbpTenantManagementDomainModule),
     typeof(BlobStoringDatabaseDomainModule)    )]
+[DependsOn(typeof(CmsKitDomainModule))]
 public class AiSoftDomainModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)

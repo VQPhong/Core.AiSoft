@@ -14,6 +14,7 @@ using Volo.Abp.VirtualFileSystem;
 using Volo.Abp.OpenIddict;
 using Volo.Abp.BlobStoring.Database;
 using Volo.Abp.TenantManagement;
+using Volo.CmsKit;
 
 namespace Core.AiSoft;
 
@@ -29,6 +30,7 @@ namespace Core.AiSoft;
     typeof(AbpTenantManagementDomainSharedModule),
     typeof(BlobStoringDatabaseDomainSharedModule)
     )]
+[DependsOn(typeof(CmsKitDomainSharedModule))]
 public class AiSoftDomainSharedModule : AbpModule
 {
     public override void PreConfigureServices(ServiceConfigurationContext context)

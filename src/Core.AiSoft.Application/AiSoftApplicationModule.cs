@@ -1,4 +1,4 @@
-﻿using Core.AiSoft.Knowledge;
+using Core.AiSoft.Knowledge;
 using Volo.Abp.PermissionManagement;
 using Volo.Abp.SettingManagement;
 using Volo.Abp.Account;
@@ -8,6 +8,8 @@ using Volo.Abp.FeatureManagement;
 using Volo.Abp.Modularity;
 using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp.TenantManagement;
+using Volo.CmsKit.Admin;
+using Volo.CmsKit.Public;
 
 namespace Core.AiSoft;
 
@@ -22,6 +24,7 @@ namespace Core.AiSoft;
     typeof(AbpTenantManagementApplicationModule),
     typeof(AbpSettingManagementApplicationModule)
     )]
+[DependsOn(typeof(CmsKitAdminApplicationModule), typeof(CmsKitPublicApplicationModule))]
 public class AiSoftApplicationModule : AbpModule
 {
 

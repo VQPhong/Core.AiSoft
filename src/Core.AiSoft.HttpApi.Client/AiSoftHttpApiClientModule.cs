@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp.Account;
 using Volo.Abp.Modularity;
 using Volo.Abp.PermissionManagement;
@@ -7,6 +7,7 @@ using Volo.Abp.VirtualFileSystem;
 using Volo.Abp.FeatureManagement;
 using Volo.Abp.Identity;
 using Volo.Abp.TenantManagement;
+using Volo.CmsKit.Admin;
 
 namespace Core.AiSoft;
 
@@ -19,6 +20,7 @@ namespace Core.AiSoft;
     typeof(AbpTenantManagementHttpApiClientModule),
     typeof(AbpSettingManagementHttpApiClientModule)
 )]
+[DependsOn(typeof(CmsKitAdminHttpApiClientModule))]
 public class AiSoftHttpApiClientModule : AbpModule
 {
     public const string RemoteServiceName = "Default";
