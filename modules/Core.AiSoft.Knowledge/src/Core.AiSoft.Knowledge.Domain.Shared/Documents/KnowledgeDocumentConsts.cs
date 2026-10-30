@@ -11,4 +11,8 @@ public static class KnowledgeDocumentConsts
     public const int Sha256Length = 64;
 
     public const int MaxBlobNameLength = 128;
+
+    public const long DefaultMaxFileSize = 50 * 1024 * 1024;
+
+    public const string AllowedExtensionsForUpload = ".md,.txt,.docx,.pdf";
 }

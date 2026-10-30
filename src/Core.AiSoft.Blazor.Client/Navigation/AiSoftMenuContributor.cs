@@ -2,14 +2,12 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Core.AiSoft.Localization;
-using Core.AiSoft.Permissions;
+using Core.AiSoft.Knowledge.Permissions;
 using Core.AiSoft.MultiTenancy;
 using Volo.Abp.Account.Localization;
 using Volo.Abp.UI.Navigation;
-using Localization.Resources.AbpUi;
 using Volo.Abp.Authorization.Permissions;
 using Volo.Abp.SettingManagement.Blazor.Menus;
-using Volo.Abp.Users;
 using Volo.Abp.TenantManagement.Blazor.Navigation;
 using Volo.Abp.Identity.Blazor;
 namespace Core.AiSoft.Blazor.Client.Navigation;
@@ -46,18 +44,17 @@ public class AiSoftMenuContributor : IMenuContributor
             order: 1
         ));
 
-        //context.Menu.AddItem(new ApplicationMenuItem(
-        //        AiSoftMenus.Knowledge,
-        //        l["Menu:Knowledge"],
-        //        icon: "fas fa-book",
-        //        order: 2)
-        //    .AddItem(new ApplicationMenuItem(
-        //        AiSoftMenus.KnowledgeEditor,
-        //        l["Menu:KnowledgeEditor"],
-        //        "/Cms/BlogPosts",
-        //        icon: "fas fa-pen-to-square",
-        //        target: "_self",
-        //        requiredPermissionName: "CmsKit.BlogPosts")));
+        context.Menu.AddItem(new ApplicationMenuItem(
+                AiSoftMenus.Knowledge,
+                l["Menu:Knowledge"],
+                icon: "fas fa-book",
+                order: 2)
+            .AddItem(new ApplicationMenuItem(
+                AiSoftMenus.KnowledgeIndexManagement,
+                l["Menu:KnowledgeIndexManagement"],
+                "/knowledge/index-management",
+                icon: "fas fa-database",
+                requiredPermissionName: KnowledgePermissions.IngestionJobs.Default)));
 
         if (MultiTenancyConsts.IsEnabled)
         {

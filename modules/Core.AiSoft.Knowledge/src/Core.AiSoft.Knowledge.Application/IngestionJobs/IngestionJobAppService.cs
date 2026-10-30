@@ -1,13 +1,13 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Core.AiSoft.Knowledge.Documents;
 using Core.AiSoft.Knowledge.Permissions;
+using Core.AiSoft.Knowledge.PostIndexing;
 using Microsoft.AspNetCore.Authorization;
+using Volo.Abp;
 using Volo.Abp.Application.Dtos;
-using Volo.Abp.Domain.Entities;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.Uow;
 
 namespace Core.AiSoft.Knowledge.IngestionJobs;
 
@@ -15,34 +15,26 @@ namespace Core.AiSoft.Knowledge.IngestionJobs;
 public class IngestionJobAppService : KnowledgeAppService, IIngestionJobAppService
 {
     private readonly IRepository<IngestionJob, Guid> _jobRepository;
-    private readonly IRepository<KnowledgeDocument, Guid> _documentRepository;
+    private readonly PostIngestionManager _postIngestionManager;
 
     public IngestionJobAppService(
         IRepository<IngestionJob, Guid> jobRepository,
-        IRepository<KnowledgeDocument, Guid> documentRepository)
+        PostIngestionManager postIngestionManager)
     {
         _jobRepository = jobRepository;
-        _documentRepository = documentRepository;
+        _postIngestionManager = postIngestionManager;
     }
 
     public virtual async Task<IngestionJobDto> GetAsync(Guid id)
     {
-        var query = (await CreateQueryAsync()).Where(j => j.Id == id);
-
-        var job = await AsyncExecuter.FirstOrDefaultAsync(query)
-                  ?? throw new EntityNotFoundException(typeof(IngestionJob), id);
-
-        return WithDuration(job);
+        return ToDto(await _jobRepository.GetAsync(id));
     }
 
     public virtual async Task<PagedResultDto<IngestionJobDto>> GetListAsync(GetIngestionJobsDto input)
     {
-        var filter = input.Filter?.Trim().ToLower();
-
-        var query = (await CreateQueryAsync())
-            .WhereIf(!filter.IsNullOrEmpty(), j => j.FileName.ToLower().Contains(filter!))
+        var query = (await _jobRepository.GetQueryableAsync())
+            .WhereIf(input.BlogPostId.HasValue, j => j.BlogPostId == input.BlogPostId)
             .WhereIf(input.Status.HasValue, j => j.Status == input.Status)
-            .WhereIf(input.DocumentId.HasValue, j => j.DocumentId == input.DocumentId)
             .WhereIf(input.CreationTimeFrom.HasValue, j => j.CreationTime >= input.CreationTimeFrom)
             .WhereIf(input.CreationTimeTo.HasValue, j => j.CreationTime <= input.CreationTimeTo);
 
@@ -53,39 +45,70 @@ public class IngestionJobAppService : KnowledgeAppService, IIngestionJobAppServi
             .ThenByDescending(j => j.Id)
             .PageBy(input));
 
-        return new PagedResultDto<IngestionJobDto>(totalCount, jobs.Select(WithDuration).ToList());
+        return new PagedResultDto<IngestionJobDto>(totalCount, jobs.Select(ToDto).ToList());
     }
 
-    protected virtual async Task<IQueryable<IngestionJobDto>> CreateQueryAsync()
+    [Authorize(KnowledgePermissions.IngestionJobs.Create)]
+    public virtual async Task<IngestionJobDto> CreateAsync(CreateIngestionJobDto input)
     {
-        var jobs = await _jobRepository.GetQueryableAsync();
-        var documents = await _documentRepository.GetQueryableAsync();
-
-        return from job in jobs
-            join document in documents on job.DocumentId equals document.Id
-            select new IngestionJobDto
-            {
-                Id = job.Id,
-                DocumentId = job.DocumentId,
-                FileName = document.FileName,
-                Status = job.Status,
-                AttemptCount = job.AttemptCount,
-                StartedAt = job.StartedAt,
-                FinishedAt = job.FinishedAt,
-                ChunkCount = job.ChunkCount,
-                ErrorCode = job.ErrorCode,
-                ErrorMessage = job.ErrorMessage,
-                CreationTime = job.CreationTime
-            };
-    }
-
-    private static IngestionJobDto WithDuration(IngestionJobDto job)
-    {
-        if (job.StartedAt.HasValue && job.FinishedAt.HasValue)
+        if (input.Force)
         {
-            job.DurationMs = (long)(job.FinishedAt.Value - job.StartedAt.Value).TotalMilliseconds;
+            await AuthorizationService.CheckAsync(KnowledgePermissions.IngestionJobs.Force);
         }
 
-        return job;
+        var job = await _postIngestionManager.EnqueueAsync(input.BlogPostId, input.Force);
+
+        try
+        {
+            await CurrentUnitOfWork!.SaveChangesAsync();
+        }
+        catch (Exception ex) when (ex is not BusinessException)
+        {
+            var activeJobId = await FindActiveJobIdAsync(input.BlogPostId);
+            if (activeJobId == null)
+            {
+                throw;
+            }
+
+            throw new BusinessException(KnowledgeErrorCodes.IngestionAlreadyRunning).WithData("jobId", activeJobId.Value);
+        }
+
+        return ToDto(job);
+    }
+
+    protected virtual async Task<Guid?> FindActiveJobIdAsync(Guid blogPostId)
+    {
+        using var uow = UnitOfWorkManager.Begin(requiresNew: true, isTransactional: false);
+
+        var query = (await _jobRepository.GetQueryableAsync())
+            .Where(j => j.BlogPostId == blogPostId && IngestionJobConsts.ActiveStatuses.Contains(j.Status))
+            .Select(j => (Guid?)j.Id);
+
+        return await AsyncExecuter.FirstOrDefaultAsync(query);
+    }
+
+    protected virtual IngestionJobDto ToDto(IngestionJob job)
+    {
+        return new IngestionJobDto
+        {
+            Id = job.Id,
+            BlogPostId = job.BlogPostId,
+            Version = job.Version,
+            ContentHash = job.ContentHash,
+            IsForced = job.IsForced,
+            DocumentId = job.DocumentId,
+            Status = job.Status,
+            SkipReason = job.SkipReason,
+            AttemptCount = job.AttemptCount,
+            StartedAt = job.StartedAt,
+            FinishedAt = job.FinishedAt,
+            DurationMs = job.StartedAt.HasValue && job.FinishedAt.HasValue
+                ? (long)(job.FinishedAt.Value - job.StartedAt.Value).TotalMilliseconds
+                : null,
+            ChunkCount = job.ChunkCount,
+            ErrorCode = job.ErrorCode,
+            ErrorMessage = job.ErrorMessage,
+            CreationTime = job.CreationTime
+        };
     }
 }

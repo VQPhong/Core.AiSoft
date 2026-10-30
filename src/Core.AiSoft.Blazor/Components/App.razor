@@ -23,6 +23,8 @@
 
     <link href="Core.AiSoft.Blazor.styles.css" rel="stylesheet"/>
     <link href="Core.AiSoft.Blazor.Client.styles.css" rel="stylesheet"/>
+    @* Radzen "-base" theme: component styles only, no global CSS reset, so LeptonX / Bootstrap stay untouched. *@
+    <link href="_content/Radzen.Blazor/css/standard-base.css" rel="stylesheet"/>
     
     <HeadOutlet @rendermode="InteractiveAuto" />
 
@@ -46,6 +48,7 @@
     </div>
     
     <AbpScripts BundleName="@BlazorLeptonXLiteThemeBundles.Scripts.Global" WebAssemblyScriptFiles="GlobalScripts" @rendermode="InteractiveAuto" />
+    <script src="_content/Radzen.Blazor/Radzen.Blazor.js"></script>
 
     <script src="_framework/blazor.web.js"></script>
 

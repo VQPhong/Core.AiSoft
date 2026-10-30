@@ -35,7 +35,7 @@ public class AiSoftInfrastructureModule : AbpModule
             .AddCheck<QdrantHealthCheck>("qdrant", tags: ["ready"]);
 
         // RabbitMQ job workers (one hosted service per job). Turn one off per host with Jobs:{JobName}:Enabled=false.
-        context.Services.AddHostedService<IngestDocumentJobWorker>();
+        context.Services.AddHostedService<IngestPostJobWorker>();
     }
 
     private static void ConfigureSeaweedFsHttpClient(ServiceConfigurationContext context, SeaweedFsOptions options)

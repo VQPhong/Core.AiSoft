@@ -66,10 +66,30 @@ public class IngestionJob_Tests
 
         Should.Throw<InvalidOperationException>(() => job.StartAttempt(2, Start));
         Should.Throw<InvalidOperationException>(() => job.Fail(null, "late failure", Start));
+        Should.Throw<InvalidOperationException>(() => job.Skip(IngestionJobSkipReason.Unchanged, Start));
     }
 
-    private static IngestionJob CreateJob()
+    [Fact]
+    public void Skip_Finishes_The_Job_With_A_Reason()
     {
-        return new IngestionJob(Guid.NewGuid(), tenantId: null, documentId: Guid.NewGuid());
+        var job = CreateJob();
+
+        job.Skip(IngestionJobSkipReason.Superseded, Start);
+
+        job.Status.ShouldBe(IngestionJobStatus.Skipped);
+        job.SkipReason.ShouldBe(IngestionJobSkipReason.Superseded);
+        job.IsFinished.ShouldBeTrue();
+    }
+
+    internal static IngestionJob CreateJob(Guid? blogPostId = null, int version = 1, string? contentHash = null, bool isForced = false)
+    {
+        return new IngestionJob(
+            Guid.NewGuid(),
+            tenantId: null,
+            blogPostId ?? Guid.NewGuid(),
+            version,
+            contentHash ?? new string('a', IngestionJobConsts.ContentHashLength),
+            isForced,
+            snapshotBlobName: "post/1.md");
     }
 }

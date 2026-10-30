@@ -9,6 +9,12 @@ public class RabbitMqJobWorkerOptions
     /// </summary>
     public bool Enabled { get; set; } = true;
 
+    public const int MaxConcurrencyLimit = 16;
+
+    /// <summary>
+    /// Messages processed in parallel by this host (clamped to 1..<see cref="MaxConcurrencyLimit"/>). The total across hosts
+    /// is hosts x this value.
+    /// </summary>
     public int MaxConcurrency { get; set; } = 2;
 
     public int MaxAttempts { get; set; } = 3;

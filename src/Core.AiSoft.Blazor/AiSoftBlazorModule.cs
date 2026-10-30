@@ -1,3 +1,4 @@
+using Radzen;
 using System;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
@@ -20,6 +21,7 @@ using Core.AiSoft.BlobStoring.SeaweedFs;
 using Core.AiSoft.EntityFrameworkCore;
 using Core.AiSoft.Knowledge;
 using Core.AiSoft.Knowledge.Documents;
+using Core.AiSoft.Knowledge.PostIndexing;
 using Core.AiSoft.Localization;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -63,6 +65,8 @@ using Volo.Abp.Identity.Blazor.Server;
 using Volo.Abp.TenantManagement.Blazor.Server;
 using Volo.CmsKit.Admin.Web;
 using Volo.CmsKit.Public.Web;
+using Volo.CmsKit.Admin.Web.Menus;
+using Volo.CmsKit.Public.Web.Menus;
 using Volo.CmsKit.GlobalFeatures;
 using Volo.CmsKit.Web;
 using Volo.Abp.GlobalFeatures;
@@ -238,6 +242,11 @@ public class AiSoftBlazorModule : AbpModule
             {
                 container.UseSeaweedFs();
             });
+
+            options.Containers.Configure<KnowledgeSnapshotContainer>(container =>
+            {
+                container.UseSeaweedFs();
+            });
         });
     }
 
@@ -366,6 +375,9 @@ public class AiSoftBlazorModule : AbpModule
             })
             .AddBootstrap5Providers()
             .AddFontAwesomeIcons();
+
+        // Radzen (MIT) DataGrid / Dialog / Notification, used by the Knowledge pages.
+        context.Services.AddRadzenComponents();
     }
 
     private void ConfigureMenu(ServiceConfigurationContext context)
@@ -373,6 +385,11 @@ public class AiSoftBlazorModule : AbpModule
         Configure<AbpNavigationOptions>(options =>
         {
             options.MenuContributors.Add(new AiSoftMenuContributor(context.Services.GetConfiguration()));
+
+            // CMS Kit registers its own menus here, but only the server knows them: they showed during prerender and vanished
+            // once WebAssembly took over. Its list pages redirect to /knowledge/index-management anyway, so drop them entirely.
+            options.MenuContributors.RemoveAll(c => c is CmsKitAdminMenuContributor or CmsKitPublicMenuContributor);
+            options.MainMenuNames.Remove(CmsKitMenus.Public);
         });
     }
 

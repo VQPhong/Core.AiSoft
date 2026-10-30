@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Core.AiSoft.Knowledge;
 using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.Domain.Repositories;
@@ -11,8 +12,8 @@ namespace Core.AiSoft.Data;
 
 public class KnowledgeBlogDataSeedContributor : IDataSeedContributor, ITransientDependency
 {
-    public const string BlogName = "Knowledge";
-    public const string BlogSlug = "knowledge";
+    public const string BlogName = KnowledgeBlogConsts.BlogName;
+    public const string BlogSlug = KnowledgeBlogConsts.BlogSlug;
 
     private readonly IBlogRepository _blogRepository;
     private readonly BlogManager _blogManager;

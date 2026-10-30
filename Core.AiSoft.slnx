@@ -9,6 +9,7 @@
         <Project Path="modules/Core.AiSoft.Knowledge/src/Core.AiSoft.Knowledge.Application/Core.AiSoft.Knowledge.Application.csproj" />
         <Project Path="modules/Core.AiSoft.Knowledge/src/Core.AiSoft.Knowledge.EntityFrameworkCore/Core.AiSoft.Knowledge.EntityFrameworkCore.csproj" />
         <Project Path="modules/Core.AiSoft.Knowledge/src/Core.AiSoft.Knowledge.HttpApi/Core.AiSoft.Knowledge.HttpApi.csproj" />
+        <Project Path="modules/Core.AiSoft.Knowledge/src/Core.AiSoft.Knowledge.HttpApi.Client/Core.AiSoft.Knowledge.HttpApi.Client.csproj" />
     </Folder>
     <Folder Name="/src/">
         <Project Path="src/Core.AiSoft.Domain/Core.AiSoft.Domain.csproj" />

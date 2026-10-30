@@ -34,6 +34,9 @@ namespace Core.AiSoft.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)");
 
+                    b.Property<Guid?>("BlogPostId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("ChunkCount")
                         .HasColumnType("integer");
 
@@ -136,6 +139,9 @@ namespace Core.AiSoft.Migrations
                     b.Property<int>("AttemptCount")
                         .HasColumnType("integer");
 
+                    b.Property<Guid>("BlogPostId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("ChunkCount")
                         .HasColumnType("integer");
 
@@ -146,6 +152,12 @@ namespace Core.AiSoft.Migrations
                         .HasColumnType("character varying(40)")
                         .HasColumnName("ConcurrencyStamp");
 
+                    b.Property<string>("ContentHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character(64)")
+                        .IsFixedLength();
+
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("CreationTime");
@@ -154,7 +166,7 @@ namespace Core.AiSoft.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("CreatorId");
 
-                    b.Property<Guid>("DocumentId")
+                    b.Property<Guid?>("DocumentId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("ErrorCode")
@@ -173,6 +185,9 @@ namespace Core.AiSoft.Migrations
                     b.Property<DateTime?>("FinishedAt")
                         .HasColumnType("timestamp without time zone");
 
+                    b.Property<bool>("IsForced")
+                        .HasColumnType("boolean");
+
                     b.Property<DateTime?>("LastModificationTime")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("LastModificationTime");
@@ -180,6 +195,14 @@ namespace Core.AiSoft.Migrations
                     b.Property<Guid?>("LastModifierId")
                         .HasColumnType("uuid")
                         .HasColumnName("LastModifierId");
+
+                    b.Property<int?>("SkipReason")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SnapshotBlobName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.Property<DateTime?>("StartedAt")
                         .HasColumnType("timestamp without time zone");
@@ -191,13 +214,93 @@ namespace Core.AiSoft.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("TenantId");
 
+                    b.Property<int>("Version")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("BlogPostId")
+                        .IsUnique()
+                        .HasFilter("\"Status\" IN (0, 1, 2, 3, 4)");
 
                     b.HasIndex("DocumentId");
 
                     b.HasIndex("Status", "CreationTime");
 
                     b.ToTable("KnowledgeIngestionJobs", (string)null);
+                });
+
+            modelBuilder.Entity("Core.AiSoft.Knowledge.PostIndexing.KnowledgePostIndexState", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ActiveJobId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("ActiveVersion")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("BlogPostId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("ChunkCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("ConcurrencyStamp");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<string>("ExtraProperties")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("ExtraProperties");
+
+                    b.Property<DateTime?>("IndexedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("IndexedContentHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character(64)")
+                        .IsFixedLength();
+
+                    b.Property<int?>("IndexedVersion")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("LastJobId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("TenantId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "BlogPostId")
+                        .IsUnique();
+
+                    NpgsqlIndexBuilderExtensions.AreNullsDistinct(b.HasIndex("TenantId", "BlogPostId"), false);
+
+                    b.ToTable("KnowledgePostIndexStates", (string)null);
                 });
 
             modelBuilder.Entity("Volo.Abp.AuditLogging.AuditLog", b =>
@@ -2628,9 +2731,7 @@ namespace Core.AiSoft.Migrations
                 {
                     b.HasOne("Core.AiSoft.Knowledge.Documents.KnowledgeDocument", null)
                         .WithMany()
-                        .HasForeignKey("DocumentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DocumentId");
                 });
 
             modelBuilder.Entity("Volo.Abp.AuditLogging.AuditLogAction", b =>

@@ -5,6 +5,7 @@
     "Menu:Home": "Trang chủ",
     "Menu:Knowledge": "Kho tri thức",
     "Menu:KnowledgeEditor": "Soạn thảo tài liệu",
+    "Menu:KnowledgeIndexManagement": "Quản lý index",
     "LongWelcomeMessage": "Chào mừng đến với ứng dụng. Đây là dự án khởi tạo dựa trên ABP framework. Xem thêm tại",
     "Welcome": "Chào mừng"
   }

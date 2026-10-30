@@ -2,36 +2,44 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Core.AiSoft.Knowledge.IngestionJobs;
+using Core.AiSoft.Knowledge.PostIndexing;
 using Core.AiSoft.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Core.AiSoft.Knowledge;
 
-public class IngestDocumentJobWorker : RabbitMqJobWorkerBase<IngestDocumentRequestedEto>
+public class IngestPostJobWorker : RabbitMqJobWorkerBase<IngestPostRequestedEto>
 {
-    public IngestDocumentJobWorker(IServiceProvider serviceProvider)
+    public const string Name = "Knowledge.IngestPost";
+
+    public IngestPostJobWorker(IServiceProvider serviceProvider)
         : base(serviceProvider)
     {
     }
 
-    protected override string JobName => "Knowledge.IngestDocument";
+    protected override string JobName => Name;
+
+    protected override void ConfigureDefaults(RabbitMqJobWorkerOptions options)
+    {
+        options.MaxConcurrency = 3;
+    }
 
     protected override Task ProcessAsync(
         IServiceProvider services,
-        IngestDocumentRequestedEto message,
+        IngestPostRequestedEto message,
         JobContext context,
         CancellationToken cancellationToken)
     {
-        return services.GetRequiredService<IngestionJobProcessor>().ProcessAsync(message, context.Attempt, cancellationToken);
+        return services.GetRequiredService<PostIngestionProcessor>().ProcessAsync(message, context.Attempt, cancellationToken);
     }
 
     protected override Task OnFailedAsync(
         IServiceProvider services,
-        IngestDocumentRequestedEto message,
+        IngestPostRequestedEto message,
         JobFailure failure,
         CancellationToken cancellationToken)
     {
-        return services.GetRequiredService<IngestionJobProcessor>()
+        return services.GetRequiredService<PostIngestionProcessor>()
             .FailAsync(message.JobId, message.TenantId, failure.ErrorCode, failure.ErrorMessage, cancellationToken);
     }
 }

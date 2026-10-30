@@ -52,7 +52,18 @@ public abstract class RabbitMqJobWorkerBase<TMessage> : BackgroundService
         Logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger(GetType());
 
         Options = new RabbitMqJobWorkerOptions();
+        ConfigureDefaults(Options);
         serviceProvider.GetRequiredService<IConfiguration>().GetSection("Jobs").GetSection(JobName).Bind(Options);
+    }
+
+    private int _inFlight;
+
+    /// <summary>
+    /// Per-job defaults, applied before the "Jobs:{JobName}" configuration section (which overrides them).
+    /// Called from the constructor: must only set values on <paramref name="options"/>.
+    /// </summary>
+    protected virtual void ConfigureDefaults(RabbitMqJobWorkerOptions options)
+    {
     }
 
     /// <summary>
@@ -106,7 +117,7 @@ public abstract class RabbitMqJobWorkerBase<TMessage> : BackgroundService
 
     protected virtual async Task ConsumeUntilChannelClosesAsync(CancellationToken stoppingToken)
     {
-        var concurrency = (ushort)Math.Clamp(Options.MaxConcurrency, 1, ushort.MaxValue);
+        var concurrency = (ushort)Math.Clamp(Options.MaxConcurrency, 1, RabbitMqJobWorkerOptions.MaxConcurrencyLimit);
 
         var connection = await ConnectionPool.GetAsync(EventBusOptions.ConnectionName);
         await using var channel = await connection.CreateChannelAsync(
@@ -171,6 +182,9 @@ public abstract class RabbitMqJobWorkerBase<TMessage> : BackgroundService
         TMessage? message = null;
         Exception? error = null;
 
+        var inFlight = Interlocked.Increment(ref _inFlight);
+        Logger.LogDebug("Job {JobName} started message {MessageId} ({InFlight} in flight)", JobName, delivery.BasicProperties.MessageId, inFlight);
+
         try
         {
             message = (TMessage)Serializer.Deserialize(delivery.Body.ToArray(), typeof(TMessage));
@@ -190,6 +204,10 @@ public abstract class RabbitMqJobWorkerBase<TMessage> : BackgroundService
         catch (Exception ex)
         {
             error = ex;
+        }
+        finally
+        {
+            Interlocked.Decrement(ref _inFlight);
         }
 
         // Unreadable -> always be error

@@ -1,5 +1,6 @@
 ﻿using Core.AiSoft.Knowledge.Documents;
 using Core.AiSoft.Knowledge.IngestionJobs;
+using Core.AiSoft.Knowledge.PostIndexing;
 using Microsoft.EntityFrameworkCore;
 using Volo.Abp.Data;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,6 +13,8 @@ public class KnowledgeDbContext : AbpDbContext<KnowledgeDbContext>, IKnowledgeDb
     public DbSet<KnowledgeDocument> KnowledgeDocuments { get; set; }
 
     public DbSet<IngestionJob> IngestionJobs { get; set; }
+
+    public DbSet<KnowledgePostIndexState> PostIndexStates { get; set; }
 
     public KnowledgeDbContext(DbContextOptions<KnowledgeDbContext> options)
         : base(options)

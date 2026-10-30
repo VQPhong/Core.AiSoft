@@ -1,6 +1,7 @@
 using Core.AiSoft.Knowledge.Documents;
 using Core.AiSoft.Knowledge.EntityFrameworkCore;
 using Core.AiSoft.Knowledge.IngestionJobs;
+using Core.AiSoft.Knowledge.PostIndexing;
 using Microsoft.EntityFrameworkCore;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
@@ -70,6 +71,7 @@ public class AiSoftDbContext :
     // Knowledge
     public DbSet<KnowledgeDocument> KnowledgeDocuments { get; set; }
     public DbSet<IngestionJob> IngestionJobs { get; set; }
+    public DbSet<KnowledgePostIndexState> PostIndexStates { get; set; }
 
     #endregion
 
@@ -104,6 +106,21 @@ public class AiSoftDbContext :
             b.HasIndex(d => new { d.TenantId, d.Sha256 })
                 .IsUnique()
                 .HasFilter("\"IsDeleted\" = false")
+                .AreNullsDistinct(false);
+        });
+
+        // Database-level guarantee of "at most one queued/running job per blog post" (statuses 0-4, see IngestionJobConsts.ActiveStatuses).
+        builder.Entity<IngestionJob>(b =>
+        {
+            b.HasIndex(j => j.BlogPostId)
+                .IsUnique()
+                .HasFilter("\"Status\" IN (0, 1, 2, 3, 4)");
+        });
+
+        builder.Entity<KnowledgePostIndexState>(b =>
+        {
+            b.HasIndex(s => new { s.TenantId, s.BlogPostId })
+                .IsUnique()
                 .AreNullsDistinct(false);
         });
 

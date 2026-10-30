@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Core.AiSoft.Application.Contracts\Core.AiSoft.Application.Contracts.csproj" />
+    <ProjectReference Include="..\..\modules\Core.AiSoft.Knowledge\src\Core.AiSoft.Knowledge.HttpApi.Client\Core.AiSoft.Knowledge.HttpApi.Client.csproj" />
   </ItemGroup>
 
   <ItemGroup>

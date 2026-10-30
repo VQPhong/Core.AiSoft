@@ -17,18 +17,18 @@ namespace Core.AiSoft.Knowledge.Documents;
 [Authorize(KnowledgePermissions.Documents.Default)]
 public class KnowledgeDocumentAppService : KnowledgeAppService, IKnowledgeDocumentAppService
 {
-    private readonly KnowledgeDocumentManager _documentManager;
+    private readonly KnowledgeDocumentImporter _documentImporter;
     private readonly KnowledgeFileValidator _fileValidator;
     private readonly IRepository<KnowledgeDocument, Guid> _documentRepository;
     private readonly KnowledgeUploadOptions _uploadOptions;
 
     public KnowledgeDocumentAppService(
-        KnowledgeDocumentManager documentManager,
+        KnowledgeDocumentImporter documentImporter,
         KnowledgeFileValidator fileValidator,
         IRepository<KnowledgeDocument, Guid> documentRepository,
         IOptions<KnowledgeUploadOptions> uploadOptions)
     {
-        _documentManager = documentManager;
+        _documentImporter = documentImporter;
         _fileValidator = fileValidator;
         _documentRepository = documentRepository;
         _uploadOptions = uploadOptions.Value;
@@ -45,7 +45,7 @@ public class KnowledgeDocumentAppService : KnowledgeAppService, IKnowledgeDocume
         }
 
         var content = await ReadWithLimitAsync(file.GetStream(), _uploadOptions.MaxFileSize);
-        var (document, _) = await _documentManager.CreateAsync(Path.GetFileName(file.FileName ?? string.Empty), content);
+        var (document, _) = await _documentImporter.ImportAsync(Path.GetFileName(file.FileName ?? string.Empty), content);
 
         return ObjectMapper.Map<KnowledgeDocument, KnowledgeDocumentDto>(document);
     }

@@ -5,11 +5,21 @@ namespace Core.AiSoft.Knowledge.IngestionJobs;
 
 public class IngestionJobDto : EntityDto<Guid>
 {
-    public Guid DocumentId { get; set; }
+    public Guid BlogPostId { get; set; }
+    public int Version { get; set; }
 
-    public string FileName { get; set; } = default!;
+    public string ContentHash { get; set; } = default!;
+
+    public bool IsForced { get; set; }
+
+    /// <summary>
+    /// Source docs file
+    /// </summary>
+    public Guid? DocumentId { get; set; }
 
     public IngestionJobStatus Status { get; set; }
+
+    public IngestionJobSkipReason? SkipReason { get; set; }
 
     public int AttemptCount { get; set; }
 

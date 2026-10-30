@@ -1,20 +1,29 @@
 using System;
+using Volo.Abp;
 using Volo.Abp.Domain.Entities.Auditing;
 using Volo.Abp.MultiTenancy;
 
 namespace Core.AiSoft.Knowledge.IngestionJobs;
 
-/// <summary>
-/// By default, create one job that ref to <see cref="Documents.KnowledgeDocument"/>. 
-/// Every upload or re-ingest creates a new job; keep run history.
-/// </summary>
 public class IngestionJob : AuditedAggregateRoot<Guid>, IMultiTenant
 {
     public virtual Guid? TenantId { get; protected set; }
 
-    public virtual Guid DocumentId { get; protected set; }
+    public virtual Guid BlogPostId { get; protected set; }
+
+    public virtual int Version { get; protected set; }
+
+    public virtual string ContentHash { get; protected set; } = default!;
+
+    public virtual bool IsForced { get; protected set; }
+
+    public virtual string SnapshotBlobName { get; protected set; } = default!;
+
+    public virtual Guid? DocumentId { get; protected set; }
 
     public virtual IngestionJobStatus Status { get; protected set; }
+
+    public virtual IngestionJobSkipReason? SkipReason { get; protected set; }
 
     public virtual int AttemptCount { get; protected set; }
 
@@ -32,15 +41,28 @@ public class IngestionJob : AuditedAggregateRoot<Guid>, IMultiTenant
     {
     }
 
-    internal IngestionJob(Guid id, Guid? tenantId, Guid documentId)
+    internal IngestionJob(
+        Guid id,
+        Guid? tenantId,
+        Guid blogPostId,
+        int version,
+        string contentHash,
+        bool isForced,
+        string snapshotBlobName,
+        Guid? documentId = null)
         : base(id)
     {
         TenantId = tenantId;
+        BlogPostId = blogPostId;
+        Version = version;
+        ContentHash = Check.NotNullOrWhiteSpace(contentHash, nameof(contentHash), IngestionJobConsts.ContentHashLength);
+        IsForced = isForced;
+        SnapshotBlobName = Check.NotNullOrWhiteSpace(snapshotBlobName, nameof(snapshotBlobName), IngestionJobConsts.MaxSnapshotBlobNameLength);
         DocumentId = documentId;
         Status = IngestionJobStatus.Queued;
     }
 
-    public virtual bool IsFinished => Status is IngestionJobStatus.Succeeded or IngestionJobStatus.Failed;
+    public virtual bool IsFinished => Status is IngestionJobStatus.Succeeded or IngestionJobStatus.Failed or IngestionJobStatus.Skipped;
 
     public virtual void StartAttempt(int attempt, DateTime now)
     {
@@ -70,6 +92,15 @@ public class IngestionJob : AuditedAggregateRoot<Guid>, IMultiTenant
         ErrorMessage = Truncate(errorMessage, IngestionJobConsts.MaxErrorMessageLength);
         FinishedAt = now;
         Status = IngestionJobStatus.Failed;
+    }
+
+    public virtual void Skip(IngestionJobSkipReason reason, DateTime now)
+    {
+        EnsureNotFinished();
+
+        SkipReason = reason;
+        FinishedAt = now;
+        Status = IngestionJobStatus.Skipped;
     }
 
     private void EnsureNotFinished()

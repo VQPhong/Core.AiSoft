@@ -22,5 +22,10 @@ public class KnowledgeDocumentDto : EntityDto<Guid>
     /// </summary>
     public Guid? LastJobId { get; set; }
 
+    /// <summary>
+    /// Draft blog post
+    /// </summary>
+    public Guid? BlogPostId { get; set; }
+
     public DateTime CreationTime { get; set; }
 }

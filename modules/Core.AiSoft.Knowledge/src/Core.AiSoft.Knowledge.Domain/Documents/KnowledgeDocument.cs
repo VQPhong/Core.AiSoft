@@ -30,6 +30,8 @@ public class KnowledgeDocument : FullAuditedAggregateRoot<Guid>, IMultiTenant
 
     public virtual Guid? LastJobId { get; protected set; }
 
+    public virtual Guid? BlogPostId { get; protected set; }
+
     protected KnowledgeDocument()
     {
     }
@@ -53,6 +55,11 @@ public class KnowledgeDocument : FullAuditedAggregateRoot<Guid>, IMultiTenant
         Sha256 = Check.NotNullOrWhiteSpace(sha256, nameof(sha256), KnowledgeDocumentConsts.Sha256Length);
         BlobName = Check.NotNullOrWhiteSpace(blobName, nameof(blobName), KnowledgeDocumentConsts.MaxBlobNameLength);
         Status = KnowledgeDocumentStatus.Pending;
+    }
+
+    internal void AttachPost(Guid blogPostId)
+    {
+        BlogPostId = blogPostId;
     }
 
     internal void AssignJob(Guid jobId)

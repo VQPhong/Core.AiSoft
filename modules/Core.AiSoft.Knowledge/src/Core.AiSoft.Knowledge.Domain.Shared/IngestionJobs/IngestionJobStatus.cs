@@ -8,5 +8,6 @@ public enum IngestionJobStatus
     Embedding = 3,
     Indexing = 4,
     Succeeded = 5,
-    Failed = 6
+    Failed = 6,
+    Skipped = 7
 }

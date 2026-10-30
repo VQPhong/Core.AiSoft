@@ -12,5 +12,5 @@ public class KnowledgeUploadOptions
         [".pdf"] = "application/pdf"
     };
 
-    public long MaxFileSize { get; set; } = 50 * 1024 * 1024;       // 50MB
+    public long MaxFileSize { get; set; } = KnowledgeDocumentConsts.DefaultMaxFileSize;
 }

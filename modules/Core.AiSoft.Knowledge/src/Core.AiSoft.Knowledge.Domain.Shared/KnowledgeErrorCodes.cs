@@ -21,4 +21,16 @@ public static class KnowledgeErrorCodes
     public const string NoTextExtracted = "Knowledge:NoTextExtracted";
 
     public const string PdfHasNoTextLayer = "Knowledge:PdfHasNoTextLayer";
+
+    public const string PostNotFound = "Knowledge:PostNotFound";
+
+    public const string PostNotInKnowledgeBlog = "Knowledge:PostNotInKnowledgeBlog";
+
+    public const string PostNotPublished = "Knowledge:PostNotPublished";
+
+    public const string IngestionAlreadyRunning = "Knowledge:IngestionAlreadyRunning";
+
+    public const string ContentUnchanged = "Knowledge:ContentUnchanged";
+
+    public const string SnapshotNotFound = "Knowledge:SnapshotNotFound";
 }

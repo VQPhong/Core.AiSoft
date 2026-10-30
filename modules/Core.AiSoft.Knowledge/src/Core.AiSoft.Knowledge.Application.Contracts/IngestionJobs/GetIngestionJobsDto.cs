@@ -8,14 +8,9 @@ namespace Core.AiSoft.Knowledge.IngestionJobs;
 /// </summary>
 public class GetIngestionJobsDto : PagedResultRequestDto
 {
-    /// <summary>
-    /// Part of the document file name.
-    /// </summary>
-    public string? Filter { get; set; }
+    public Guid? BlogPostId { get; set; }
 
     public IngestionJobStatus? Status { get; set; }
-
-    public Guid? DocumentId { get; set; }
 
     public DateTime? CreationTimeFrom { get; set; }
 

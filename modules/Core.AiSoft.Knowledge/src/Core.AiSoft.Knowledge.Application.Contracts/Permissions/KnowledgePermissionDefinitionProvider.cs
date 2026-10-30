@@ -12,8 +12,11 @@ public class KnowledgePermissionDefinitionProvider : PermissionDefinitionProvide
 
         var documents = knowledgeGroup.AddPermission(KnowledgePermissions.Documents.Default, L("Permission:Documents"));
         documents.AddChild(KnowledgePermissions.Documents.Upload, L("Permission:Documents.Upload"));
+        documents.AddChild(KnowledgePermissions.Documents.Delete, L("Permission:Documents.Delete"));
 
-        knowledgeGroup.AddPermission(KnowledgePermissions.IngestionJobs.Default, L("Permission:IngestionJobs"));
+        var ingestionJobs = knowledgeGroup.AddPermission(KnowledgePermissions.IngestionJobs.Default, L("Permission:IngestionJobs"));
+        var createJob = ingestionJobs.AddChild(KnowledgePermissions.IngestionJobs.Create, L("Permission:IngestionJobs.Create"));
+        createJob.AddChild(KnowledgePermissions.IngestionJobs.Force, L("Permission:IngestionJobs.Force"));
     }
 
     private static LocalizableString L(string name)

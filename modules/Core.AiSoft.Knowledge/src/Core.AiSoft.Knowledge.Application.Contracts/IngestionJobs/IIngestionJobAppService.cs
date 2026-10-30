@@ -10,4 +10,6 @@ public interface IIngestionJobAppService : IApplicationService
     Task<IngestionJobDto> GetAsync(Guid id);
 
     Task<PagedResultDto<IngestionJobDto>> GetListAsync(GetIngestionJobsDto input);
+
+    Task<IngestionJobDto> CreateAsync(CreateIngestionJobDto input);
 }
