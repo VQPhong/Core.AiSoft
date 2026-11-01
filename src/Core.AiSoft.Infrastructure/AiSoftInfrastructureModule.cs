@@ -1,7 +1,9 @@
 using System;
+using Core.AiSoft.Ai;
 using Core.AiSoft.BlobStoring.SeaweedFs;
 using Core.AiSoft.HealthChecks;
 using Core.AiSoft.Knowledge;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Http.Resilience;
@@ -30,12 +32,38 @@ public class AiSoftInfrastructureModule : AbpModule
 
         ConfigureSeaweedFsHttpClient(context, seaweedFsSection.Get<SeaweedFsOptions>() ?? new SeaweedFsOptions());
 
+        var ollamaSection = configuration.GetSection("Ollama");
+        Configure<OllamaOptions>(ollamaSection);
+        ConfigureOllama(context, ollamaSection.Get<OllamaOptions>() ?? new OllamaOptions());
+
         context.Services.AddHealthChecks()
             .AddCheck<SeaweedFsFilerHealthCheck>("seaweedfs-filer", tags: ["ready"])
-            .AddCheck<QdrantHealthCheck>("qdrant", tags: ["ready"]);
+            .AddCheck<QdrantHealthCheck>("qdrant", tags: ["ready"])
+            .AddCheck<OllamaHealthCheck>("ollama", tags: ["ready"]);
 
         // RabbitMQ job workers (one hosted service per job). Turn one off per host with Jobs:{JobName}:Enabled=false.
         context.Services.AddHostedService<IngestPostJobWorker>();
+    }
+
+    private static void ConfigureOllama(ServiceConfigurationContext context, OllamaOptions options)
+    {
+#pragma warning disable EXTEXP0001
+        context.Services.AddHttpClient(OllamaOptions.HttpClientName, client => client.Timeout = options.RequestTimeout + TimeSpan.FromSeconds(30))
+            .RemoveAllResilienceHandlers()
+            .AddStandardResilienceHandler(resilience =>
+            {
+                resilience.Retry.DisableForUnsafeHttpMethods();
+                resilience.AttemptTimeout.Timeout = options.RequestTimeout;
+                resilience.TotalRequestTimeout.Timeout = options.RequestTimeout;
+                resilience.CircuitBreaker.SamplingDuration = options.RequestTimeout * 2;
+            });
+#pragma warning restore EXTEXP0001
+
+        context.Services.AddTransient<IEmbeddingGenerator<string, Embedding<float>>>(sp =>
+            sp.GetRequiredService<OllamaClientFactory>().Create(OllamaOptions.EmbeddingConnectionName));
+
+        context.Services.AddTransient<IChatClient>(sp =>
+            sp.GetRequiredService<OllamaClientFactory>().Create(OllamaOptions.ChatConnectionName));
     }
 
     private static void ConfigureSeaweedFsHttpClient(ServiceConfigurationContext context, SeaweedFsOptions options)

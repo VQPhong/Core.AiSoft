@@ -1,9 +1,13 @@
 using System;
+using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
+using OllamaSharp;
+using OllamaSharp.Models;
 using Qdrant.Client;
 using Volo.Abp;
 using Volo.Abp.AspNetCore.Mvc;
@@ -26,17 +30,23 @@ public class InfraCheckController : AbpControllerBase
     private readonly IDistributedEventBus _distributedEventBus;
     private readonly InfraPingTracker _pingTracker;
     private readonly QdrantClient _qdrantClient;
+    private readonly IEmbeddingGenerator<string, Embedding<float>> _embeddingGenerator;
+    private readonly IChatClient _chatClient;
 
     public InfraCheckController(
         IBlobContainer<InfraSmokeTestContainer> blobContainer,
         IDistributedEventBus distributedEventBus,
         InfraPingTracker pingTracker,
-        QdrantClient qdrantClient)
+        QdrantClient qdrantClient,
+        IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator,
+        IChatClient chatClient)
     {
         _blobContainer = blobContainer;
         _distributedEventBus = distributedEventBus;
         _pingTracker = pingTracker;
         _qdrantClient = qdrantClient;
+        _embeddingGenerator = embeddingGenerator;
+        _chatClient = chatClient;
     }
 
     /// <summary>
@@ -176,6 +186,31 @@ public class InfraCheckController : AbpControllerBase
         {
             var collections = await _qdrantClient.ListCollectionsAsync();
             return Pass(collections.Count == 0 ? "no collections" : string.Join(", ", collections));
+        });
+
+        return result;
+    }
+
+    [HttpGet("ollama")]
+    public async Task<InfraCheckResultDto> CheckOllamaAsync()
+    {
+        var result = new InfraCheckResultDto { Target = "ollama" };
+
+        await RunStepAsync(result, "embed", async () =>
+        {
+            var stopwatch = Stopwatch.StartNew();
+            var embedding = await _embeddingGenerator.GenerateAsync("Kho tri thức nội bộ của công ty.");
+            return Pass($"{embedding.ModelId}: {embedding.Vector.Length} dimensions in {stopwatch.ElapsedMilliseconds} ms");
+        });
+
+        await RunStepAsync(result, "chat", async () =>
+        {
+            var stopwatch = Stopwatch.StartNew();
+            var options = new ChatOptions { MaxOutputTokens = 64 };
+            options.AddOllamaOption(OllamaOption.Think, false);
+
+            var response = await _chatClient.GetResponseAsync("Trả lời bằng một câu ngắn: Thủ đô của Việt Nam là gì?", options);
+            return Pass($"{response.ModelId} in {stopwatch.ElapsedMilliseconds} ms: {response.Text.Trim()}");
         });
 
         return result;

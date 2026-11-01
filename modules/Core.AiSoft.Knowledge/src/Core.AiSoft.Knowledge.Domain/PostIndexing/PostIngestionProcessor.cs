@@ -34,6 +34,7 @@ public class PostIngestionProcessor : DomainService
     private readonly IAbpDistributedLock _distributedLock;
     private readonly IUnitOfWorkManager _unitOfWorkManager;
     private readonly IEnumerable<ITextExtractor> _extractors;
+    private readonly IKnowledgeVectorStore _vectorStore;
     private readonly KnowledgeIngestionOptions _options;
 
     public PostIngestionProcessor(
@@ -43,8 +44,10 @@ public class PostIngestionProcessor : DomainService
         IAbpDistributedLock distributedLock,
         IUnitOfWorkManager unitOfWorkManager,
         IEnumerable<ITextExtractor> extractors,
+        IKnowledgeVectorStore vectorStore,
         IOptions<KnowledgeIngestionOptions> options)
     {
+        _vectorStore = vectorStore;
         _jobRepository = jobRepository;
         _stateRepository = stateRepository;
         _snapshotContainer = snapshotContainer;
@@ -76,8 +79,11 @@ public class PostIngestionProcessor : DomainService
                 "Ingesting blog post {BlogPostId} v{Version} (job {JobId}): {CharacterCount} characters in {SectionCount} sections",
                 job.BlogPostId, job.Version, job.Id, document.CharacterCount, document.Sections.Count);
 
-            // TODO: chunk -> embed -> upsert into Qdrant here
-            var chunkCount = document.Sections.Count;
+            var chunks = KnowledgeChunker.Split(document, _options.Chunking);
+            await _vectorStore.ReplaceBlogPostAsync(
+                new KnowledgePostChunks(job.BlogPostId, job.TenantId, job.Version, chunks),
+                cancellationToken);
+            var chunkCount = chunks.Count;
 
             if (_options.DebugProcessingDelay is { } delay)
             {
