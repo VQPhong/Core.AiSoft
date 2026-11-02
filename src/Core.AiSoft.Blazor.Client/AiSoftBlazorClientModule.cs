@@ -1,3 +1,4 @@
+using Radzen;
 using System;
 using System.Net.Http;
 using Blazorise;
@@ -87,6 +88,8 @@ public class AiSoftBlazorClientModule : AbpModule
             })
             .AddBootstrap5Providers()
             .AddFontAwesomeIcons();
+
+        context.Services.AddRadzenComponents();
     }
 
     private static void ConfigureAuthentication(WebAssemblyHostBuilder builder)

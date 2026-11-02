@@ -1,3 +1,4 @@
+using Core.AiSoft.Knowledge;
 using Core.AiSoft.Localization;
 using Volo.Abp.AuditLogging;
 using Volo.Abp.BackgroundJobs;
@@ -13,10 +14,12 @@ using Volo.Abp.VirtualFileSystem;
 using Volo.Abp.OpenIddict;
 using Volo.Abp.BlobStoring.Database;
 using Volo.Abp.TenantManagement;
+using Volo.CmsKit;
 
 namespace Core.AiSoft;
 
 [DependsOn(
+    typeof(KnowledgeDomainSharedModule),
     typeof(AbpAuditLoggingDomainSharedModule),
     typeof(AbpBackgroundJobsDomainSharedModule),
     typeof(AbpFeatureManagementDomainSharedModule),
@@ -27,6 +30,7 @@ namespace Core.AiSoft;
     typeof(AbpTenantManagementDomainSharedModule),
     typeof(BlobStoringDatabaseDomainSharedModule)
     )]
+[DependsOn(typeof(CmsKitDomainSharedModule))]
 public class AiSoftDomainSharedModule : AbpModule
 {
     public override void PreConfigureServices(ServiceConfigurationContext context)
@@ -51,28 +55,28 @@ public class AiSoftDomainSharedModule : AbpModule
 
             options.DefaultResourceType = typeof(AiSoftResource);
             
-            options.Languages.Add(new LanguageInfo("en", "en", "English")); 
-            options.Languages.Add(new LanguageInfo("ar", "ar", "Arabic")); 
-            options.Languages.Add(new LanguageInfo("zh-Hans", "zh-Hans", "Chinese (Simplified)")); 
-            options.Languages.Add(new LanguageInfo("zh-Hant", "zh-Hant", "Chinese (Traditional)")); 
-            options.Languages.Add(new LanguageInfo("cs", "cs", "Czech")); 
-            options.Languages.Add(new LanguageInfo("en-GB", "en-GB", "English (UK)")); 
-            options.Languages.Add(new LanguageInfo("fi", "fi", "Finnish")); 
-            options.Languages.Add(new LanguageInfo("fr", "fr", "French")); 
-            options.Languages.Add(new LanguageInfo("de-DE", "de-DE", "German (Germany)")); 
-            options.Languages.Add(new LanguageInfo("hi", "hi", "Hindi ")); 
-            options.Languages.Add(new LanguageInfo("hu", "hu", "Hungarian")); 
-            options.Languages.Add(new LanguageInfo("is", "is", "Icelandic")); 
-            options.Languages.Add(new LanguageInfo("it", "it", "Italian")); 
-            options.Languages.Add(new LanguageInfo("ko", "ko", "Korean")); 
-            options.Languages.Add(new LanguageInfo("pt-BR", "pt-BR", "Portuguese (Brazil)")); 
-            options.Languages.Add(new LanguageInfo("ro-RO", "ro-RO", "Romanian (Romania)")); 
-            options.Languages.Add(new LanguageInfo("ru", "ru", "Russian")); 
-            options.Languages.Add(new LanguageInfo("sk", "sk", "Slovak")); 
-            options.Languages.Add(new LanguageInfo("es", "es", "Spanish")); 
-            options.Languages.Add(new LanguageInfo("sv", "sv", "Swedish")); 
-            options.Languages.Add(new LanguageInfo("tr", "tr", "Turkish")); 
-
+            options.Languages.Add(new LanguageInfo("en", "en", "English"));
+            options.Languages.Add(new LanguageInfo("vi", "vi", "Tiếng Việt"));
+            //options.Languages.Add(new LanguageInfo("ar", "ar", "Arabic")); 
+            //options.Languages.Add(new LanguageInfo("zh-Hans", "zh-Hans", "Chinese (Simplified)")); 
+            //options.Languages.Add(new LanguageInfo("zh-Hant", "zh-Hant", "Chinese (Traditional)")); 
+            //options.Languages.Add(new LanguageInfo("cs", "cs", "Czech")); 
+            //options.Languages.Add(new LanguageInfo("en-GB", "en-GB", "English (UK)")); 
+            //options.Languages.Add(new LanguageInfo("fi", "fi", "Finnish")); 
+            //options.Languages.Add(new LanguageInfo("fr", "fr", "French")); 
+            //options.Languages.Add(new LanguageInfo("de-DE", "de-DE", "German (Germany)")); 
+            //options.Languages.Add(new LanguageInfo("hi", "hi", "Hindi ")); 
+            //options.Languages.Add(new LanguageInfo("hu", "hu", "Hungarian")); 
+            //options.Languages.Add(new LanguageInfo("is", "is", "Icelandic")); 
+            //options.Languages.Add(new LanguageInfo("it", "it", "Italian")); 
+            //options.Languages.Add(new LanguageInfo("ko", "ko", "Korean")); 
+            //options.Languages.Add(new LanguageInfo("pt-BR", "pt-BR", "Portuguese (Brazil)")); 
+            //options.Languages.Add(new LanguageInfo("ro-RO", "ro-RO", "Romanian (Romania)")); 
+            //options.Languages.Add(new LanguageInfo("ru", "ru", "Russian")); 
+            //options.Languages.Add(new LanguageInfo("sk", "sk", "Slovak")); 
+            //options.Languages.Add(new LanguageInfo("es", "es", "Spanish")); 
+            //options.Languages.Add(new LanguageInfo("sv", "sv", "Swedish")); 
+            //options.Languages.Add(new LanguageInfo("tr", "tr", "Turkish"));
         });
         
         Configure<AbpExceptionLocalizationOptions>(options =>

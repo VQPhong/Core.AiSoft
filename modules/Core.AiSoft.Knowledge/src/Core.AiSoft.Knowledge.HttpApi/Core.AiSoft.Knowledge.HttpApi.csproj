@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Core.AiSoft.Knowledge</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Volo.Abp.AspNetCore.Mvc" Version="10.7.0"/>
+    <ProjectReference Include="..\Core.AiSoft.Knowledge.Application.Contracts\Core.AiSoft.Knowledge.Application.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>

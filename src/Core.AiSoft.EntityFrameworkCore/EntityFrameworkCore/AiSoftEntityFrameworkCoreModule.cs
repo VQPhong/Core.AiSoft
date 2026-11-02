@@ -1,6 +1,6 @@
+using Core.AiSoft.Knowledge.EntityFrameworkCore;
 using System;
 using Microsoft.Extensions.DependencyInjection;
-using Volo.Abp.Uow;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -14,10 +14,12 @@ using Volo.Abp.SettingManagement.EntityFrameworkCore;
 using Volo.Abp.BlobStoring.Database.EntityFrameworkCore;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
 using Volo.Abp.Studio;
+using Volo.CmsKit.EntityFrameworkCore;
 
 namespace Core.AiSoft.EntityFrameworkCore;
 
 [DependsOn(
+    typeof(KnowledgeEntityFrameworkCoreModule),
     typeof(AiSoftDomainModule),
     typeof(AbpPermissionManagementEntityFrameworkCoreModule),
     typeof(AbpSettingManagementEntityFrameworkCoreModule),
@@ -30,6 +32,7 @@ namespace Core.AiSoft.EntityFrameworkCore;
     typeof(AbpTenantManagementEntityFrameworkCoreModule),
     typeof(BlobStoringDatabaseEntityFrameworkCoreModule)
     )]
+[DependsOn(typeof(CmsKitEntityFrameworkCoreModule))]
 public class AiSoftEntityFrameworkCoreModule : AbpModule
 {
     public override void PreConfigureServices(ServiceConfigurationContext context)

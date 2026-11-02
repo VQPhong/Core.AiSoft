@@ -1,0 +1,100 @@
+@page "/knowledge/chat"
+@attribute [Authorize(KnowledgePermissions.Chat.Default)]
+@using Core.AiSoft.Knowledge.Chat
+@using Core.AiSoft.Knowledge.Permissions
+@using Radzen
+@using Radzen.Blazor
+@inherits AiSoftComponentBase
+
+<RadzenComponents />
+
+<RadzenRow Gap="1rem">
+    <RadzenColumn Size="12" SizeLG="3">
+        <RadzenCard>
+            <RadzenButton Text="@KL["NewChat"]" Icon="add" ButtonStyle="ButtonStyle.Primary" class="w-100 mb-3" Click="NewConversation" />
+
+            @if (Conversations.Count == 0)
+            {
+                <RadzenText TextStyle="TextStyle.Body2" class="text-muted">@KL["NoConversations"]</RadzenText>
+            }
+
+            <div class="list-group">
+                @foreach (var conversation in Conversations)
+                {
+                    <div class="list-group-item list-group-item-action d-flex align-items-center gap-2 @(conversation.Id == ConversationId ? "active" : "")"
+                         style="cursor: pointer" @onclick="() => OpenConversationAsync(conversation.Id)">
+                        <span class="flex-grow-1 text-truncate" title="@conversation.Title">@conversation.Title</span>
+                        <span @onclick:stopPropagation="true">
+                            <RadzenButton Icon="delete" Size="ButtonSize.ExtraSmall" Variant="Variant.Text" ButtonStyle="ButtonStyle.Light"
+                                          title="@KL["DeleteConversation"]" Click="() => DeleteConversationAsync(conversation.Id)" />
+                        </span>
+                    </div>
+                }
+            </div>
+
+            <RadzenText TextStyle="TextStyle.Caption" class="text-muted d-block mt-3">@KL["ChatHistoryHint"]</RadzenText>
+        </RadzenCard>
+    </RadzenColumn>
+
+    <RadzenColumn Size="12" SizeLG="9">
+        <RadzenCard class="d-flex flex-column" Style="height: calc(100vh - 180px); min-height: 420px">
+            @* column-reverse keeps the scroll pinned to the newest message without JS. *@
+            <div class="flex-grow-1 overflow-auto d-flex flex-column-reverse mb-3">
+                <div class="d-flex flex-column gap-3">
+                    @if (Messages.Count == 0 && !IsSending)
+                    {
+                        <RadzenText TextStyle="TextStyle.Body1" class="text-muted text-center mt-5">@KL["ChatWelcome"]</RadzenText>
+                    }
+
+                    @foreach (var message in Messages)
+                    {
+                        @if (message.IsUser)
+                        {
+                            <div class="align-self-end bg-primary text-white rounded-3 px-3 py-2" style="max-width: 80%; white-space: pre-wrap">@message.Content</div>
+                        }
+                        else
+                        {
+                            <div class="align-self-start bg-light border rounded-3 px-3 py-2" style="max-width: 90%">
+                                <div class="chat-answer">@RenderMarkdown(message.Content)</div>
+
+                                @if (message.Citations.Count > 0)
+                                {
+                                    <div class="border-top mt-2 pt-2 small">
+                                        <div class="fw-semibold mb-1">@KL["Sources"]</div>
+                                        @foreach (var citation in message.Citations)
+                                        {
+                                            <div class="mb-1">
+                                                <span class="badge bg-secondary me-1">@citation.Number</span>
+                                                <a href="@citation.Source.Url" target="_blank">@citation.Source.Title</a>
+                                                @if (citation.Source.HeadingPath.Count > 0)
+                                                {
+                                                    <span class="text-muted"> › @string.Join(" › ", citation.Source.HeadingPath)</span>
+                                                }
+                                                <span class="text-muted ms-1">(@citation.Source.Score.ToString("0.00"))</span>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                    }
+
+                    @if (IsSending)
+                    {
+                        <div class="align-self-start bg-light border rounded-3 px-3 py-2 d-flex align-items-center gap-2">
+                            <RadzenProgressBarCircular ShowValue="false" Mode="ProgressBarMode.Indeterminate" Size="ProgressBarCircularSize.ExtraSmall" />
+                            <span class="text-muted">@KL["Answering"]</span>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <form class="d-flex gap-2" @onsubmit="SendAsync">
+                <RadzenTextBox @bind-Value="@Input" Placeholder="@KL["AskAQuestion"]" class="flex-grow-1" Disabled="@IsSending" Immediate="true"
+                               MaxLength="ChatConsts.MaxMessageLength" />
+                <RadzenButton ButtonType="Radzen.ButtonType.Submit" Text="@KL["Send"]" Icon="send" ButtonStyle="ButtonStyle.Primary"
+                              Disabled="@IsSending" />
+            </form>
+        </RadzenCard>
+    </RadzenColumn>
+</RadzenRow>

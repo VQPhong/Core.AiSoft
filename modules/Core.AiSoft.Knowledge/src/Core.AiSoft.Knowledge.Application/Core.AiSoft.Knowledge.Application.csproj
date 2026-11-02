@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Core.AiSoft.Knowledge</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Volo.Abp.Mapperly" Version="10.7.0" />
+    <PackageReference Include="Volo.Abp.Ddd.Application" Version="10.7.0" />
+    <ProjectReference Include="..\Core.AiSoft.Knowledge.Application.Contracts\Core.AiSoft.Knowledge.Application.Contracts.csproj" />
+    <ProjectReference Include="..\Core.AiSoft.Knowledge.Domain\Core.AiSoft.Knowledge.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

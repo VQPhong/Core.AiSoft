@@ -1,0 +1,42 @@
+@using Core.AiSoft.Knowledge.IngestionJobs
+@using Core.AiSoft.Knowledge.Localization
+@using Microsoft.Extensions.Localization
+@using Radzen
+@using Radzen.Blazor
+@inject IStringLocalizer<KnowledgeResource> KL
+
+@* Job history of one post, shown in a Radzen dialog from the index management page. *@
+<RadzenDataGrid TItem="IngestionJobDto" Data="@Jobs" AllowPaging="true" PageSize="10" Density="Density.Compact"
+                EmptyText="@KL["NoJobs"]">
+    <Columns>
+        <RadzenDataGridColumn TItem="IngestionJobDto" Property="@nameof(IngestionJobDto.CreationTime)" Title="@KL["CreatedAt"]" FormatString="{0:g}" Width="150px" />
+        <RadzenDataGridColumn TItem="IngestionJobDto" Property="@nameof(IngestionJobDto.Version)" Title="@KL["Version"]" Width="110px">
+            <Template Context="job">
+                @job.Version
+                @if (job.IsForced)
+                {
+                    <RadzenBadge BadgeStyle="BadgeStyle.Warning" Text="@KL["Forced"]" class="ms-1" />
+                }
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="IngestionJobDto" Property="@nameof(IngestionJobDto.Status)" Title="@KL["Status"]">
+            <Template Context="job">
+                @KL[$"Enum:IngestionJobStatus.{job.Status}"]
+                @if (job.SkipReason.HasValue)
+                {
+                    <small class="text-muted d-block">@KL[$"Enum:IngestionJobSkipReason.{job.SkipReason}"]</small>
+                }
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="IngestionJobDto" Property="@nameof(IngestionJobDto.AttemptCount)" Title="@KL["Attempts"]" Width="90px" />
+        <RadzenDataGridColumn TItem="IngestionJobDto" Property="@nameof(IngestionJobDto.DurationMs)" Title="@KL["Duration"]" Width="100px">
+            <Template Context="job">@(job.DurationMs.HasValue ? $"{job.DurationMs} ms" : "")</Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="IngestionJobDto" Property="@nameof(IngestionJobDto.ChunkCount)" Title="@KL["Chunks"]" Width="80px" />
+        <RadzenDataGridColumn TItem="IngestionJobDto" Property="@nameof(IngestionJobDto.ErrorMessage)" Title="@KL["Error"]" />
+    </Columns>
+</RadzenDataGrid>
+
+@code {
+    [Parameter] public IReadOnlyList<IngestionJobDto> Jobs { get; set; } = [];
+}

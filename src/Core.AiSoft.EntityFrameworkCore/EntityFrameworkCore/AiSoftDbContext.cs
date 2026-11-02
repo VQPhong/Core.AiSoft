@@ -1,3 +1,7 @@
+using Core.AiSoft.Knowledge.Documents;
+using Core.AiSoft.Knowledge.EntityFrameworkCore;
+using Core.AiSoft.Knowledge.IngestionJobs;
+using Core.AiSoft.Knowledge.PostIndexing;
 using Microsoft.EntityFrameworkCore;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
@@ -15,16 +19,19 @@ using Volo.Abp.SettingManagement.EntityFrameworkCore;
 using Volo.Abp.OpenIddict.EntityFrameworkCore;
 using Volo.Abp.TenantManagement;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
+using Volo.CmsKit.EntityFrameworkCore;
 
 namespace Core.AiSoft.EntityFrameworkCore;
 
 [ReplaceDbContext(typeof(IIdentityDbContext))]
 [ReplaceDbContext(typeof(ITenantManagementDbContext))]
+[ReplaceDbContext(typeof(IKnowledgeDbContext))]
 [ConnectionStringName("Default")]
 public class AiSoftDbContext :
     AbpDbContext<AiSoftDbContext>,
     ITenantManagementDbContext,
     IIdentityDbContext,
+    IKnowledgeDbContext,
     IHasEventOutbox,
     IHasEventInbox
 {
@@ -61,6 +68,11 @@ public class AiSoftDbContext :
     public DbSet<Tenant> Tenants { get; set; }
     public DbSet<TenantConnectionString> TenantConnectionStrings { get; set; }
 
+    // Knowledge
+    public DbSet<KnowledgeDocument> KnowledgeDocuments { get; set; }
+    public DbSet<IngestionJob> IngestionJobs { get; set; }
+    public DbSet<KnowledgePostIndexState> PostIndexStates { get; set; }
+
     #endregion
 
     public AiSoftDbContext(DbContextOptions<AiSoftDbContext> options)
@@ -86,6 +98,31 @@ public class AiSoftDbContext :
         builder.ConfigureBlobStoring();
         builder.ConfigureEventOutbox();
         builder.ConfigureEventInbox();
+        builder.ConfigureKnowledge();
+        builder.ConfigureCmsKit();
+
+        builder.Entity<KnowledgeDocument>(b =>
+        {
+            b.HasIndex(d => new { d.TenantId, d.Sha256 })
+                .IsUnique()
+                .HasFilter("\"IsDeleted\" = false")
+                .AreNullsDistinct(false);
+        });
+
+        // Database-level guarantee of "at most one queued/running job per blog post" (statuses 0-4, see IngestionJobConsts.ActiveStatuses).
+        builder.Entity<IngestionJob>(b =>
+        {
+            b.HasIndex(j => j.BlogPostId)
+                .IsUnique()
+                .HasFilter("\"Status\" IN (0, 1, 2, 3, 4)");
+        });
+
+        builder.Entity<KnowledgePostIndexState>(b =>
+        {
+            b.HasIndex(s => new { s.TenantId, s.BlogPostId })
+                .IsUnique()
+                .AreNullsDistinct(false);
+        });
 
         /* Configure your own tables/entities inside here */
 

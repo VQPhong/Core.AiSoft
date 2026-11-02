@@ -103,6 +103,26 @@ The `test` folder contains the following test projects:
 * `Core.AiSoft.Domain.Tests`: Domain layer tests.
 * `Core.AiSoft.EntityFrameworkCore.Tests`: Entity Framework Core integration tests.
 
+## Known limitations
+
+* **Stateless chat.** Each question is answered on its own. Retrieval and the LLM see only the current question,
+  so a follow-up must be self-contained: "còn nghỉ ốm thì sao?" or "what was my first question?" will not work.
+  The conversation list in the UI is display-only (kept in server memory, lost on restart).
+  - Why: the demo targets a weak local GPU. Sending history makes every prompt longer, so answers get slower.
+    It also needs a larger context window (more VRAM), and an 8B model tends to repeat earlier, possibly wrong answers as facts.
+  - Without history, the prompt stays small and predictable: system prompt + 5 sources + question.
+    The chat model runs with an explicit `num_ctx` of 6144 (`Ollama:ChatContextLength`), because Ollama silently truncates longer prompts.
+  - Planned shape if added: send the last turns, budgeted in characters (the same convention as chunking), always keep the first question,
+    and shorten old answers. Tell the model that history only explains the question and that facts still come only from the current sources.
+* **No reranking.** The knowledge chat sends the top 5 vector search hits (cosine, score ≥ 0.45) to the LLM as they are.
+  A chunk on the same topic that does not answer the question can therefore rank above the one that does.
+  Ollama has no rerank endpoint ([ollama#16076](https://github.com/ollama/ollama/issues/16076) is still open).
+  The workarounds were left out for now:
+  - scoring each chunk with a reranker model through `/api/generate` + `logprobs`: one call per chunk, community GGUF builds only;
+  - running a separate reranker server (e.g. HuggingFace TEI with `bge-reranker-v2-m3`) as an extra container.
+  Planned shape if added: retrieve ~20 candidates, rerank behind an `IKnowledgeReranker` in Infrastructure, keep the top 5.
+  Add it once an evaluation set shows that retrieval is the weak point.
+
 
 
 ## Deploying the application

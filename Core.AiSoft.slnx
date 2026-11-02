@@ -2,6 +2,15 @@
     <Configurations>
         <Platform Name="Any CPU" />
     </Configurations>
+    <Folder Name="/modules/">
+        <Project Path="modules/Core.AiSoft.Knowledge/src/Core.AiSoft.Knowledge.Domain.Shared/Core.AiSoft.Knowledge.Domain.Shared.csproj" />
+        <Project Path="modules/Core.AiSoft.Knowledge/src/Core.AiSoft.Knowledge.Domain/Core.AiSoft.Knowledge.Domain.csproj" />
+        <Project Path="modules/Core.AiSoft.Knowledge/src/Core.AiSoft.Knowledge.Application.Contracts/Core.AiSoft.Knowledge.Application.Contracts.csproj" />
+        <Project Path="modules/Core.AiSoft.Knowledge/src/Core.AiSoft.Knowledge.Application/Core.AiSoft.Knowledge.Application.csproj" />
+        <Project Path="modules/Core.AiSoft.Knowledge/src/Core.AiSoft.Knowledge.EntityFrameworkCore/Core.AiSoft.Knowledge.EntityFrameworkCore.csproj" />
+        <Project Path="modules/Core.AiSoft.Knowledge/src/Core.AiSoft.Knowledge.HttpApi/Core.AiSoft.Knowledge.HttpApi.csproj" />
+        <Project Path="modules/Core.AiSoft.Knowledge/src/Core.AiSoft.Knowledge.HttpApi.Client/Core.AiSoft.Knowledge.HttpApi.Client.csproj" />
+    </Folder>
     <Folder Name="/src/">
         <Project Path="src/Core.AiSoft.Domain/Core.AiSoft.Domain.csproj" />
         <Project Path="src/Core.AiSoft.Application/Core.AiSoft.Application.csproj" />
@@ -22,6 +31,7 @@
         <Project Path="test/Core.AiSoft.EntityFrameworkCore.Tests/Core.AiSoft.EntityFrameworkCore.Tests.csproj" />
         <Project Path="test/Core.AiSoft.TestBase/Core.AiSoft.TestBase.csproj" />
         <Project Path="test/Core.AiSoft.Domain.Tests/Core.AiSoft.Domain.Tests.csproj" />
+        <Project Path="test/Core.AiSoft.Infrastructure.Tests/Core.AiSoft.Infrastructure.Tests.csproj" />
         <Project Path="test/Core.AiSoft.HttpApi.Client.ConsoleTestApp/Core.AiSoft.HttpApi.Client.ConsoleTestApp.csproj" />
     </Folder>
 </Solution>

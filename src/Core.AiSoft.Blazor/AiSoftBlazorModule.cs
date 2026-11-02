@@ -1,3 +1,4 @@
+using Radzen;
 using System;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
@@ -18,7 +19,12 @@ using Core.AiSoft.Blazor.Client.Navigation;
 using Core.AiSoft.Blazor.InfraCheck;
 using Core.AiSoft.BlobStoring.SeaweedFs;
 using Core.AiSoft.EntityFrameworkCore;
+using Core.AiSoft.Knowledge;
+using Core.AiSoft.Knowledge.Documents;
+using Core.AiSoft.Knowledge.PostIndexing;
 using Core.AiSoft.Localization;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Core.AiSoft.MultiTenancy;
 using Microsoft.OpenApi;
 using Microsoft.Extensions.Options;
@@ -57,6 +63,14 @@ using Volo.Abp.OpenIddict;
 using Volo.Abp.Account.Web;
 using Volo.Abp.Identity.Blazor.Server;
 using Volo.Abp.TenantManagement.Blazor.Server;
+using Volo.CmsKit.Admin.Web;
+using Volo.CmsKit.Public.Web;
+using Volo.CmsKit.Admin.Web.Menus;
+using Volo.CmsKit.Public.Web.Menus;
+using Volo.CmsKit.GlobalFeatures;
+using Volo.CmsKit.Web;
+using Volo.Abp.GlobalFeatures;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Core.AiSoft.Blazor;
 
@@ -76,6 +90,7 @@ namespace Core.AiSoft.Blazor;
     typeof(AbpAspNetCoreMvcUiLeptonXLiteThemeModule),
     typeof(AbpAspNetCoreSerilogModule)
    )]
+[DependsOn(typeof(CmsKitAdminWebModule), typeof(CmsKitPublicWebModule))]
 public class AiSoftBlazorModule : AbpModule
 {
     public override void PreConfigureServices(ServiceConfigurationContext context)
@@ -161,6 +176,23 @@ public class AiSoftBlazorModule : AbpModule
         ConfigureRabbitMq(configuration);
         ConfigureDistributedEventBus();
         ConfigureBlobStoring();
+        ConfigureUploadLimits(context);
+        ConfigureCmsKitBlogRoutes();
+    }
+
+    private void ConfigureCmsKitBlogRoutes()
+    {
+        if (!GlobalFeatureManager.Instance.IsEnabled<BlogsFeature>() || GlobalFeatureManager.Instance.IsEnabled<PagesFeature>())
+        {
+            return;
+        }
+
+        Configure<RazorPagesOptions>(options =>
+        {
+            var prefix = CmsBlogsWebConsts.BlogsRoutePrefix.EnsureStartsWith('/');
+            options.Conventions.AddPageRoute("/Public/CmsKit/Blogs/Index", prefix + "/{blogSlug:minlength(1)}");
+            options.Conventions.AddPageRoute("/Public/CmsKit/Blogs/BlogPost", prefix + "/{blogSlug}/{blogPostSlug:minlength(1)}");
+        });
     }
 
     private void ConfigureRabbitMq(IConfiguration configuration)
@@ -205,7 +237,36 @@ public class AiSoftBlazorModule : AbpModule
             {
                 container.UseSeaweedFs();
             });
+
+            options.Containers.Configure<KnowledgeDocumentContainer>(container =>
+            {
+                container.UseSeaweedFs();
+            });
+
+            options.Containers.Configure<KnowledgeSnapshotContainer>(container =>
+            {
+                container.UseSeaweedFs();
+            });
         });
+    }
+
+    private static void ConfigureUploadLimits(ServiceConfigurationContext context)
+    {
+        // Kestrel rejects bodies over 30 MB and forms cap multipart sections at 128 MB by default.
+        // Allow the knowledge upload limit plus room for the multipart headers; the exact limit is enforced by KnowledgeFileValidator.
+        const long multipartOverhead = 1024 * 1024;
+
+        context.Services.AddOptions<KestrelServerOptions>()
+            .Configure<IOptions<KnowledgeUploadOptions>>((kestrel, upload) =>
+            {
+                kestrel.Limits.MaxRequestBodySize = upload.Value.MaxFileSize + multipartOverhead;
+            });
+
+        context.Services.AddOptions<FormOptions>()
+            .Configure<IOptions<KnowledgeUploadOptions>>((form, upload) =>
+            {
+                form.MultipartBodyLengthLimit = upload.Value.MaxFileSize + multipartOverhead;
+            });
     }
 
     private void ConfigureAuthentication(ServiceConfigurationContext context)
@@ -314,6 +375,9 @@ public class AiSoftBlazorModule : AbpModule
             })
             .AddBootstrap5Providers()
             .AddFontAwesomeIcons();
+
+        // Radzen (MIT) DataGrid / Dialog / Notification, used by the Knowledge pages.
+        context.Services.AddRadzenComponents();
     }
 
     private void ConfigureMenu(ServiceConfigurationContext context)
@@ -321,6 +385,11 @@ public class AiSoftBlazorModule : AbpModule
         Configure<AbpNavigationOptions>(options =>
         {
             options.MenuContributors.Add(new AiSoftMenuContributor(context.Services.GetConfiguration()));
+
+            // CMS Kit registers its own menus here, but only the server knows them: they showed during prerender and vanished
+            // once WebAssembly took over. Its list pages redirect to /knowledge/index-management anyway, so drop them entirely.
+            options.MenuContributors.RemoveAll(c => c is CmsKitAdminMenuContributor or CmsKitPublicMenuContributor);
+            options.MainMenuNames.Remove(CmsKitMenus.Public);
         });
     }
 
@@ -338,6 +407,10 @@ public class AiSoftBlazorModule : AbpModule
         Configure<AbpAspNetCoreMvcOptions>(options =>
         {
             options.ConventionalControllers.Create(typeof(AiSoftApplicationModule).Assembly);
+            options.ConventionalControllers.Create(typeof(KnowledgeApplicationModule).Assembly, opts =>
+            {
+                opts.RootPath = KnowledgeRemoteServiceConsts.ModuleName;
+            });
 
             // Developer diagnostics only: the endpoints do not exist outside Development.
             if (!hostingEnvironment.IsDevelopment())

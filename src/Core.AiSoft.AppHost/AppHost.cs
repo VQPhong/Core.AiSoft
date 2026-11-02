@@ -36,6 +36,16 @@ var seaweedfs = builder.AddContainer("seaweedfs", "chrislusf/seaweedfs", "4.48")
     .WithVolume("core-aisoft-seaweedfs-data", "/data")
     .WithLifetime(ContainerLifetime.Persistent);
 
+var ollama = builder.AddOllama("ollama", port: 11435)
+    .WithImageTag("0.40.13")
+    .WithDataVolume("core-aisoft-ollama-data")
+    .WithGPUSupport()
+    .WithEnvironment("OLLAMA_KEEP_ALIVE", "30m")
+    .WithLifetime(ContainerLifetime.Persistent);
+
+var embeddingModel = ollama.AddModel("embedding-model", "qwen3-embedding:0.6b");
+var chatModel = ollama.AddModel("chat-model", "qwen3:8b");
+
 // Reserved
 builder.AddContainer("falkordb", "falkordb/falkordb", "6.0.2")
     .WithEndpoint(targetPort: 6379, name: "redis")
@@ -53,12 +63,15 @@ var blazorHost = builder.AddProject<Projects.Core_AiSoft_Blazor>("blazor-host")
     .WithReference(aiSoftDb, "Default")
     .WithReference(rabbitmq)
     .WithReference(qdrant)
+    .WithReference(embeddingModel)
+    .WithReference(chatModel)
     .WithEnvironment("SeaweedFs__FilerUrl", seaweedfs.GetEndpoint("filer"))
     .WithEnvironment("StringEncryption__DefaultPassPhrase", stringEncryptionPassPhrase)
     .WaitForCompletion(migrator)
     .WaitFor(rabbitmq)
     .WaitFor(qdrant)
     .WaitFor(seaweedfs)
+    .WaitFor(embeddingModel)
     .WithEndpoint("https", endpoint => endpoint.IsProxied = false);
 
 if (builder.ExecutionContext.IsPublishMode)
