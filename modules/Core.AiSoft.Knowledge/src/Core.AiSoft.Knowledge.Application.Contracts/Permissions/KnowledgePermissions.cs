@@ -13,6 +13,11 @@ public class KnowledgePermissions
         public const string Delete = Default + ".Delete";
     }
 
+    public static class Chat
+    {
+        public const string Default = GroupName + ".Chat";
+    }
+
     public static class IngestionJobs
     {
         public const string Default = GroupName + ".IngestionJobs";

@@ -50,6 +50,12 @@ public class AiSoftMenuContributor : IMenuContributor
                 icon: "fas fa-book",
                 order: 2)
             .AddItem(new ApplicationMenuItem(
+                AiSoftMenus.KnowledgeChat,
+                l["Menu:KnowledgeChat"],
+                "/knowledge/chat",
+                icon: "fas fa-comments",
+                requiredPermissionName: KnowledgePermissions.Chat.Default))
+            .AddItem(new ApplicationMenuItem(
                 AiSoftMenus.KnowledgeIndexManagement,
                 l["Menu:KnowledgeIndexManagement"],
                 "/knowledge/index-management",

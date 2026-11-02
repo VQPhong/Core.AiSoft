@@ -30,6 +30,9 @@ public class QdrantKnowledgeVectorStore : IKnowledgeVectorStore, ITransientDepen
 
     private const int EmbeddingBatchSize = 16;
 
+    private const string QueryInstruction =
+        "Instruct: Given a user question, retrieve passages of the internal knowledge base that answer the question\nQuery:";
+
     private readonly QdrantClient _qdrantClient;
     private readonly IEmbeddingGenerator<string, Embedding<float>> _embeddingGenerator;
 
@@ -87,6 +90,40 @@ public class QdrantKnowledgeVectorStore : IKnowledgeVectorStore, ITransientDepen
                 wait: true,
                 cancellationToken: cancellationToken);
         }
+    }
+
+    [Obsolete]
+    public virtual async Task<IReadOnlyList<KnowledgeChunkMatch>> SearchAsync(
+        string query,
+        Guid? tenantId,
+        int limit,
+        float minScore,
+        CancellationToken cancellationToken = default)
+    {
+        var collection = GetCollectionName();
+        if (!await _qdrantClient.CollectionExistsAsync(collection, cancellationToken))
+        {
+            return [];
+        }
+
+        var embedding = await _embeddingGenerator.GenerateAsync(QueryInstruction + query, cancellationToken: cancellationToken);
+
+        var points = await _qdrantClient.SearchAsync(
+            collection,
+            embedding.Vector,
+            filter: tenantId.HasValue ? MatchKeyword(TenantIdField, tenantId.Value.ToString()) : IsEmpty(TenantIdField),
+            limit: (ulong)limit,
+            payloadSelector: true,
+            scoreThreshold: minScore,
+            cancellationToken: cancellationToken);
+
+        return points.Select(p => new KnowledgeChunkMatch(
+                Guid.Parse(p.Payload[BlogPostIdField].StringValue),
+                (int)p.Payload[ChunkIndexField].IntegerValue,
+                p.Payload[HeadingPathField].ListValue.Values.Select(v => v.StringValue).ToList(),
+                p.Payload[TextField].StringValue,
+                p.Score))
+            .ToList();
     }
 
     protected virtual string GetCollectionName()

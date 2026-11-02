@@ -63,7 +63,9 @@ public class AiSoftInfrastructureModule : AbpModule
             sp.GetRequiredService<OllamaClientFactory>().Create(OllamaOptions.EmbeddingConnectionName));
 
         context.Services.AddTransient<IChatClient>(sp =>
-            sp.GetRequiredService<OllamaClientFactory>().Create(OllamaOptions.ChatConnectionName));
+            new OllamaChatDefaultsClient(
+                sp.GetRequiredService<OllamaClientFactory>().Create(OllamaOptions.ChatConnectionName),
+                options.ChatContextLength));
     }
 
     private static void ConfigureSeaweedFsHttpClient(ServiceConfigurationContext context, SeaweedFsOptions options)

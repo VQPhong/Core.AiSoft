@@ -4,6 +4,7 @@ using Volo.Abp.Domain;
 using Volo.Abp.Modularity;
 using Volo.CmsKit;
 using Core.AiSoft.Knowledge.PostIndexing;
+using Core.AiSoft.Knowledge.Retrieval;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Core.AiSoft.Knowledge;
@@ -19,6 +20,8 @@ public class KnowledgeDomainModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
-        Configure<KnowledgeIngestionOptions>(context.Services.GetConfiguration().GetSection("Knowledge:Ingestion"));
+        var configuration = context.Services.GetConfiguration();
+        Configure<KnowledgeIngestionOptions>(configuration.GetSection("Knowledge:Ingestion"));
+        Configure<KnowledgeRetrievalOptions>(configuration.GetSection("Knowledge:Retrieval"));
     }
 }

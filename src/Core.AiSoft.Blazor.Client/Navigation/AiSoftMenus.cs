@@ -9,4 +9,5 @@ public class AiSoftMenus
     public const string Knowledge = Prefix + ".Knowledge";
     public const string KnowledgeEditor = Knowledge + ".Editor";
     public const string KnowledgeIndexManagement = Knowledge + ".IndexManagement";
+    public const string KnowledgeChat = Knowledge + ".Chat";
 }

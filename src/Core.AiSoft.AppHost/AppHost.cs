@@ -40,6 +40,7 @@ var ollama = builder.AddOllama("ollama", port: 11435)
     .WithImageTag("0.40.13")
     .WithDataVolume("core-aisoft-ollama-data")
     .WithGPUSupport()
+    .WithEnvironment("OLLAMA_KEEP_ALIVE", "30m")
     .WithLifetime(ContainerLifetime.Persistent);
 
 var embeddingModel = ollama.AddModel("embedding-model", "qwen3-embedding:0.6b");

@@ -9,4 +9,6 @@ public class OllamaOptions
     public const string ChatConnectionName = "chat-model";
 
     public TimeSpan RequestTimeout { get; set; } = TimeSpan.FromMinutes(5);
+
+    public int ChatContextLength { get; set; } = 6144;
 }
