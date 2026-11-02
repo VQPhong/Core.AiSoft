@@ -58,6 +58,16 @@ public class KnowledgePostDeletionManager : DomainService
             throw new BusinessException(KnowledgeErrorCodes.PostNotInKnowledgeBlog);
         }
 
+        // Knowledge data is removed by KnowledgeBlogPostDeletedHandler, in this unit of work.
+        await _blogPostRepository.DeleteAsync(post);
+    }
+
+    /// <summary>
+    /// Removes everything the Knowledge module keeps for a post: Qdrant points first (a failure aborts the whole deletion),
+    /// then index state, jobs and source documents (soft delete), and the blobs once the unit of work is committed.
+    /// </summary>
+    public virtual async Task CleanupAsync(Guid blogPostId)
+    {
         var state = await _stateRepository.FirstOrDefaultAsync(s => s.BlogPostId == blogPostId);
         state?.EnsureCanDelete();
 
@@ -77,7 +87,6 @@ public class KnowledgePostDeletionManager : DomainService
         }
 
         await _documentRepository.DeleteManyAsync(documents);
-        await _blogPostRepository.DeleteAsync(post);
 
         _unitOfWorkManager.Current!.OnCompleted(() => DeleteBlobsAsync(blogPostId, blobsToDelete));
     }
